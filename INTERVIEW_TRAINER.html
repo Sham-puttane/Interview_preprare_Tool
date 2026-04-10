@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Interview Trainer v2 — Pattern Recognition System</title>
+<style>
+:root{--bg:#0f1115;--p:#161922;--ph:#1c202c;--b:#262b38;--bs:#363c4d;--t:#e6e8ee;--td:#9099ad;--tf:#5a6273;--a:#7c9dff;--ah:#9fb6ff;--ok:#4ade80;--w:#fbbf24;--err:#f87171;--code:#0b0d12;--hl:#fbbf2433;--hls:#fbbf2477}
+[data-theme=light]{--bg:#f7f8fc;--p:#fff;--ph:#f0f2f8;--b:#e1e5ee;--bs:#c9d0dd;--t:#1a1f2e;--td:#5a6273;--tf:#9099ad;--a:#2f5fff;--ah:#1a46e8;--code:#f0f2f8;--hl:#fde68a;--hls:#fcd34d}
+*{box-sizing:border-box;margin:0}
+html,body{background:var(--bg);color:var(--t);font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.55}
+a{color:var(--a);text-decoration:none}a:hover{color:var(--ah);text-decoration:underline}
+code,pre,.mono{font-family:"JetBrains Mono",Consolas,monospace}
+header{position:sticky;top:0;z-index:100;background:var(--p);border-bottom:1px solid var(--b);padding:10px 20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px}.brand h1{font-size:17px}.brand .sub{color:var(--td);font-size:11px}
+nav{display:flex;gap:3px;flex-wrap:wrap;flex:1;justify-content:center}
+.tab{background:0;color:var(--td);border:1px solid transparent;padding:7px 12px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;transition:.15s}
+.tab:hover{background:var(--ph);color:var(--t)}.tab.active{background:var(--a);color:#fff;border-color:var(--a)}
+.thm{background:var(--ph);border:1px solid var(--b);color:var(--t);padding:5px 9px;border-radius:6px;font-size:12px;cursor:pointer}
+main{max-width:1200px;margin:0 auto;padding:24px 20px 80px}
+.V{display:none}.V.active{display:block;animation:fi .2s ease}@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+h2{margin:0 0 4px;font-size:22px}h3{margin:16px 0 6px;font-size:16px}h4{margin:12px 0 4px;font-size:13px;color:var(--td);text-transform:uppercase;letter-spacing:.5px}
+.lead{color:var(--td);margin:0 0 18px;font-size:13px}
+.P{background:var(--p);border:1px solid var(--b);border-radius:10px;padding:16px;margin-bottom:14px}
+.btn{background:var(--a);color:#fff;border:0;padding:9px 16px;border-radius:7px;font-weight:600;font-size:13px;cursor:pointer;transition:.15s}.btn:hover{background:var(--ah)}
+.btn2{background:var(--ph);color:var(--t);border:1px solid var(--b);padding:9px 16px;border-radius:7px;font-weight:600;font-size:13px;cursor:pointer}.btn2:hover{background:var(--b)}
+.row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.tag{background:var(--ph);border:1px solid var(--b);padding:2px 9px;border-radius:11px;font-size:11px;color:var(--td)}
+.tag.ok{color:var(--ok);border-color:var(--ok)}.tag.w{color:var(--w);border-color:var(--w)}.tag.err{color:var(--err);border-color:var(--err)}
+.note{background:#7c9dff15;border:1px solid var(--a);border-radius:7px;padding:10px 12px;font-size:12px;color:var(--td);margin:10px 0}
+
+/* Detector */
+.det-in{width:100%;min-height:160px;background:var(--code);color:var(--t);border:1px solid var(--b);border-radius:7px;padding:12px;font-family:inherit;font-size:13px;resize:vertical}
+.det-in:focus{outline:0;border-color:var(--a)}
+.det-hl{background:var(--code);border:1px solid var(--b);border-radius:7px;padding:12px;line-height:1.7;font-size:13px;white-space:pre-wrap;word-wrap:break-word}
+.det-hl mark{background:var(--hl);color:inherit;border-radius:3px;padding:1px 4px;font-weight:600}
+.det-hl mark.s{background:var(--hls);color:var(--bg)}
+.sc-row{display:grid;grid-template-columns:170px 1fr 50px;gap:8px;align-items:center;margin-bottom:4px}
+.sc-name{font-size:12px;font-weight:500}.sc-bg{background:var(--b);border-radius:4px;height:9px;overflow:hidden}
+.sc-fill{height:100%;transition:width .3s;background:var(--a)}.sc-fill.top{background:var(--ok)}
+.sc-val{font-size:11px;color:var(--td);text-align:right}
+.why-box{background:var(--ph);border:1px solid var(--b);border-radius:8px;padding:14px;margin-top:10px}
+.why-box h4{margin:0 0 6px}
+.why-item{font-size:12px;padding:5px 0;border-bottom:1px solid var(--b);display:flex;align-items:flex-start;gap:6px}
+.why-item:last-child{border:0}
+.why-icon{flex-shrink:0;width:18px;text-align:center}
+
+/* Graph */
+.graph-wrap{width:100%;overflow-x:auto;padding:10px 0}
+.graph-wrap svg{display:block;margin:0 auto}
+.g-node{cursor:pointer}.g-node rect{transition:fill .15s,stroke .15s}
+.g-node:hover rect{fill:var(--a);stroke:var(--a)}.g-node:hover text{fill:#fff}
+.g-node.active rect{fill:var(--a);stroke:var(--a)}.g-node.active text{fill:#fff}
+.g-node.result rect{fill:var(--ok);stroke:var(--ok)}.g-node.result text{fill:#000}
+.g-edge{stroke:var(--bs);stroke-width:1.5;fill:none;marker-end:url(#arrowhead)}
+.g-edge.active{stroke:var(--a);stroke-width:2.5}
+
+/* Library */
+.lib-ctrl{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.s-in{flex:1;min-width:180px;background:var(--p);color:var(--t);border:1px solid var(--b);border-radius:7px;padding:8px 12px;font-size:13px}.s-in:focus{outline:0;border-color:var(--a)}
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.pc{background:var(--p);border:1px solid var(--b);border-radius:9px;padding:14px;cursor:pointer;transition:.15s;position:relative}
+.pc:hover{border-color:var(--a);transform:translateY(-2px)}
+.pc .pi{font-size:18px;margin-bottom:4px}.pc .pn{font-size:15px;font-weight:600;margin-bottom:3px}
+.pc .pcat{font-size:10px;color:var(--tf);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.pc .ps{font-size:12px;color:var(--td)}
+.mb{position:absolute;top:8px;right:8px;background:var(--ok);color:#000;font-size:10px;padding:2px 7px;border-radius:9px;font-weight:600}
+.d-back{background:0;border:0;color:var(--a);cursor:pointer;font-size:12px;padding:0;margin-bottom:10px}
+pre.code{background:var(--code);border:1px solid var(--b);border-radius:7px;padding:12px;overflow-x:auto;font-size:12px;line-height:1.5;margin:6px 0}
+.sig-list{list-style:none;padding:0;margin:6px 0}.sig-list li{padding:5px 9px;background:var(--ph);border-radius:5px;margin-bottom:3px;font-size:12px;border-left:2px solid var(--a)}
+.pr{display:grid;grid-template-columns:40px 1fr auto auto;gap:8px;align-items:center;background:var(--ph);border:1px solid var(--b);border-radius:7px;padding:8px 12px;margin-bottom:6px}
+.pr-id{font-family:monospace;font-size:11px;color:var(--tf)}.pr-t{font-weight:500;font-size:13px}
+.diff{font-size:10px;padding:2px 7px;border-radius:9px;font-weight:600;text-transform:uppercase}
+.diff.easy{background:#16a34a33;color:#4ade80}.diff.medium{background:#f59e0b33;color:#fbbf24}.diff.hard{background:#dc262633;color:#f87171}
+.ct{display:flex;gap:3px;flex-wrap:wrap;margin-top:4px}.ct span{font-size:9px;background:var(--p);color:var(--td);padding:1px 6px;border-radius:7px;border:1px solid var(--b)}
+.yt-link{display:inline-flex;align-items:center;gap:6px;background:#ff000018;border:1px solid #ff000044;padding:6px 12px;border-radius:7px;font-size:12px;color:var(--t);margin:3px 0}
+.yt-link:hover{background:#ff000030;text-decoration:none}
+
+/* Quiz */
+.qs{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.st{background:var(--p);border:1px solid var(--b);border-radius:7px;padding:8px 14px;flex:1;min-width:100px}
+.st-v{font-size:20px;font-weight:700;color:var(--a)}.st-l{font-size:10px;color:var(--td);text-transform:uppercase;letter-spacing:.5px}
+.qp{background:var(--p);border:1px solid var(--b);border-radius:9px;padding:16px;margin-bottom:14px;font-size:14px;line-height:1.6}
+.qo{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:7px}
+.qob{background:var(--p);border:1px solid var(--b);border-radius:7px;padding:10px 12px;cursor:pointer;font-size:12px;text-align:left;transition:.15s;color:var(--t)}
+.qob:hover{border-color:var(--a);background:var(--ph)}.qob.ok{background:#16a34a33;border-color:var(--ok)}.qob.no{background:#dc262633;border-color:var(--err)}
+.qfb{margin-top:12px;padding:12px;border-radius:7px;font-size:12px}
+.qfb.ok{background:#16a34a22;border:1px solid var(--ok)}.qfb.no{background:#dc262622;border:1px solid var(--err)}
+
+/* Playbook */
+.pb-step{background:var(--p);border:1px solid var(--b);border-radius:9px;padding:14px;margin-bottom:10px}
+.pb-step .letter{font-size:20px;font-weight:700;color:var(--a);margin-right:8px}
+.pb-say{background:var(--code);border-radius:6px;padding:8px 10px;margin:4px 0;font-size:12px;font-style:italic;border-left:2px solid var(--a)}
+.pb-donot{background:#dc262611;border-radius:6px;padding:8px 10px;margin:4px 0;font-size:12px;border-left:2px solid var(--err);color:var(--err)}
+.pb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+
+/* Calc */
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:720px){.cg{grid-template-columns:1fr}}
+.ci{width:100%;background:var(--code);color:var(--t);border:1px solid var(--b);border-radius:7px;padding:10px;font-size:15px;font-family:monospace}.ci:focus{outline:0;border-color:var(--a)}
+.ct2{font-size:18px;font-weight:700;color:var(--a);margin-bottom:4px;font-family:monospace}
+
+footer{max-width:1200px;margin:30px auto 0;padding:16px 20px;color:var(--tf);font-size:11px;border-top:1px solid var(--b)}
+footer a{color:var(--td)}
+</style>
+</head>
+<body>
+<header>
+<div class="brand"><h1>🎯 Interview Trainer</h1><span class="sub">v2 — Pattern System for DS / AI / DE</span></div>
+<nav id="nav">
+<button class="tab active" data-v="home">🏠 Home</button>
+<button class="tab" data-v="det">🔍 Detector</button>
+<button class="tab" data-v="tree">🌳 Decision Graph</button>
+<button class="tab" data-v="lib">📚 Patterns</button>
+<button class="tab" data-v="quiz">🎲 Quiz</button>
+<button class="tab" data-v="play">🎙️ Playbook</button>
+<button class="tab" data-v="calc">📐 Calc</button>
+</nav>
+<button class="thm" id="thm">🌙</button>
+</header>
+<main>
+
+<!-- HOME -->
+<section class="V active" id="v-home">
+<h2>The Interview Algorithm — Interactive Edition</h2>
+<p class="lead">Your hands-on trainer for DS / AI / DE coding interviews. Built around pattern recognition and the UMPIRE method.</p>
+<div class="P">
+<h3>What's inside</h3>
+<ul style="font-size:13px;color:var(--td);line-height:1.8">
+<li><b>🔍 Signal Detector</b> — paste a full LeetCode/HackerRank problem. It analyzes input structure, constraints, keywords, and explains <b>why</b> a pattern works and why others don't.</li>
+<li><b>🌳 Decision Graph</b> — an actual visual flowchart. Click through nodes to arrive at the right pattern. Deterministic and foolproof.</li>
+<li><b>📚 Pattern Library</b> — 20 patterns, each with signals, code templates, YouTube tutorials, and real interview problems tagged by company (Meta, Google, Amazon…).</li>
+<li><b>🎲 Quiz</b> — random problem → pick the pattern. Trains your recognition reflex.</li>
+<li><b>🎙️ Interview Playbook</b> — exactly what to <b>say out loud</b>, what to ask, and what to avoid at every stage of UMPIRE.</li>
+<li><b>📐 Constraints Calculator</b> — type n → get target complexity + matching patterns.</li>
+</ul>
+<div class="note">100% offline. Progress saved to localStorage. Nothing sent anywhere.</div>
+</div>
+</section>
+
+<!-- DETECTOR -->
+<section class="V" id="v-det">
+<h2>🔍 Signal Detector v2</h2>
+<p class="lead">Paste a <b>full problem</b> (title, description, examples, constraints) from LeetCode/HackerRank. The detector analyzes input structure, constraints, keywords, and tells you <b>why</b> the top pattern works and why alternatives fail.</p>
+<div class="P">
+<textarea class="det-in" id="dIn" placeholder="Paste the entire problem here including examples and constraints…&#10;&#10;Example:&#10;Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.&#10;You may assume that each input would have exactly one solution, and you may not use the same element twice.&#10;&#10;Example 1: Input: nums = [2,7,11,15], target = 9 → Output: [0,1]&#10;Constraints: 2 <= nums.length <= 10^4, -10^9 <= nums[i] <= 10^9"></textarea>
+<div class="row">
+<button class="btn" id="aBtn">Analyze Problem</button>
+<button class="btn2" id="cBtn">Clear</button>
+<button class="btn2" id="sBtn">Load Sample Problem</button>
+</div>
+</div>
+<div id="dOut"></div>
+</section>
+
+<!-- DECISION GRAPH -->
+<section class="V" id="v-tree">
+<h2>🌳 Pattern Decision Graph</h2>
+<p class="lead">Click any node to explore. This is a deterministic algorithm — follow the path to the correct pattern every time.</p>
+<div class="P">
+<div class="row" style="margin-bottom:10px">
+<button class="btn2" id="gReset">🔄 Reset</button>
+<span id="gPath" style="font-size:12px;color:var(--td);padding-top:4px"></span>
+</div>
+<div class="graph-wrap" id="gWrap"></div>
+</div>
+<div id="gResult"></div>
+</section>
+
+<!-- LIBRARY -->
+<section class="V" id="v-lib">
+<h2>📚 Pattern Library</h2>
+<p class="lead">20 patterns that cover ~87% of interview questions. Each has trigger signals, code templates, YouTube tutorials, and real company-tagged problems.</p>
+<div id="libList">
+<div class="lib-ctrl"><input class="s-in" id="libS" placeholder="Search patterns, keywords, or problem names…"/></div>
+<div class="pg" id="pGrid"></div>
+</div>
+<div id="libDet" style="display:none"></div>
+</section>
+
+<!-- QUIZ -->
+<section class="V" id="v-quiz">
+<h2>🎲 Pattern Recognition Quiz</h2>
+<p class="lead">Read the problem. Identify the pattern. Build your reflex. Press 1-4 to pick, Space for next.</p>
+<div class="qs">
+<div class="st"><div class="st-v" id="qStr">0</div><div class="st-l">Streak</div></div>
+<div class="st"><div class="st-v" id="qCor">0</div><div class="st-l">Correct</div></div>
+<div class="st"><div class="st-v" id="qTot">0</div><div class="st-l">Total</div></div>
+<div class="st"><div class="st-v" id="qRate">–</div><div class="st-l">Accuracy</div></div>
+</div>
+<div id="qBox"></div>
+</section>
+
+<!-- PLAYBOOK -->
+<section class="V" id="v-play">
+<h2>🎙️ Interview Playbook</h2>
+<p class="lead">Exactly what to say out loud, what to ask, and what to avoid at each UMPIRE step. Practice this script until it's second nature.</p>
+<div id="pbBox"></div>
+</section>
+
+<!-- CALC -->
+<section class="V" id="v-calc">
+<h2>📐 Constraints → Complexity Calculator</h2>
+<p class="lead">Type the max input size. Get the target time complexity and which patterns are feasible.</p>
+<div class="cg">
+<div class="P">
+<h4>Enter max n</h4>
+<input class="ci" id="cIn" type="text" placeholder="e.g. 100000 or 1e5"/>
+<div class="row">
+<button class="btn2" onclick="$('cIn').value='20';cRun()">n≤20</button>
+<button class="btn2" onclick="$('cIn').value='5000';cRun()">n≤5K</button>
+<button class="btn2" onclick="$('cIn').value='100000';cRun()">n≤10⁵</button>
+<button class="btn2" onclick="$('cIn').value='1000000';cRun()">n≤10⁶</button>
+</div>
+</div>
+<div class="P" id="cOut"><div style="color:var(--td);font-size:12px">Enter a value to see results.</div></div>
+</div>
+</section>
+
+</main>
+<footer>
+<div>Interview Trainer v2 — single-file, offline, localStorage-backed.</div>
+<div style="margin-top:4px">Company tags from <a href="https://seanprashad.com/leetcode-patterns/" target="_blank">seanprashad/leetcode-patterns</a>, <a href="https://github.com/snehasishroy/leetcode-companywise-interview-questions" target="_blank">snehasishroy</a>. Patterns from <a href="https://www.designgurus.io/blog/grokking-the-coding-interview-patterns" target="_blank">Grokking the Coding Interview</a>. YouTube links from <a href="https://neetcode.io" target="_blank">NeetCode</a> and <a href="https://www.youtube.com/@abdul_bari" target="_blank">Abdul Bari</a>.</div>
+</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+// ============================================================
+// PATTERNS DATABASE
+// ============================================================
+const P=[
+{id:"two-pointers",name:"Two Pointers",cat:"Array/String",icon:"⬅️➡️",
+ yt:[{t:"Two Pointers — NeetCode",u:"https://www.youtube.com/watch?v=cQ1Oz4ckceM"},{t:"Two Pointer Technique — Abdul Bari",u:"https://www.youtube.com/watch?v=2wVjt3yhGwg"}],
+ signals:["Sorted array + find pair/triplet with target sum","Palindrome verification (compare from both ends)","Remove duplicates or move elements in place","Container problems comparing two ends"],
+ kw:{s:["sorted array","two sum","pair sum","palindrome","triplet","3sum","three sum","two pointers"],w:["sorted","pair","sum","target","remove duplicate","in place","left right"]},
+ input:"Sorted array or string",output:"Indices, boolean, or count",
+ use:"Data is sorted (or can be sorted cheaply) and you need O(n) scan from both ends.",
+ nouse:"Unsorted data where order matters — a hashmap gives cleaner O(n). Also won't work when you need all combinations (use backtracking).",
+ whyWorks:"Sorting + two pointers guarantees monotonic convergence. Moving left pointer increases sum, moving right decreases it — so we never miss the answer while scanning in O(n).",
+ tc:"O(n) or O(n log n) if sort needed",sc:"O(1)",
+ tpl:`def two_sum_sorted(arr, target):
+    left, right = 0, len(arr) - 1
+    while left < right:
+        s = arr[left] + arr[right]
+        if s == target:
+            return [left, right]
+        elif s < target:
+            left += 1
+        else:
+            right -= 1
+    return []`,
+ probs:[
+  {id:167,n:"Two Sum II - Input Array Is Sorted",d:"Medium",c:["Amazon","Apple","Google"],u:"https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/"},
+  {id:15,n:"3Sum",d:"Medium",c:["Meta","Amazon","Apple","Microsoft","Bloomberg"],u:"https://leetcode.com/problems/3sum/"},
+  {id:11,n:"Container With Most Water",d:"Medium",c:["Amazon","Meta","Bloomberg"],u:"https://leetcode.com/problems/container-with-most-water/"},
+  {id:125,n:"Valid Palindrome",d:"Easy",c:["Meta","Microsoft","Amazon"],u:"https://leetcode.com/problems/valid-palindrome/"},
+  {id:42,n:"Trapping Rain Water",d:"Hard",c:["Amazon","Google","Meta","Apple"],u:"https://leetcode.com/problems/trapping-rain-water/"}
+]},
+{id:"sliding-window",name:"Sliding Window",cat:"Array/String",icon:"🪟",
+ yt:[{t:"Sliding Window — NeetCode",u:"https://www.youtube.com/watch?v=1pkOgXD63yU"},{t:"Sliding Window Technique — Aditya Verma",u:"https://www.youtube.com/watch?v=EHCGAZBbB88"}],
+ signals:["Longest/shortest contiguous subarray or substring with a constraint","Maximum sum in a window of fixed size k","At most/exactly K distinct characters in substring","Answer is a contiguous range of elements"],
+ kw:{s:["longest substring","shortest substring","contiguous subarray","window of size","at most k distinct","longest subarray","minimum window","maximum sum subarray"],w:["longest","shortest","substring","subarray","contiguous","window","consecutive","maximum sum"]},
+ input:"Array or string",output:"Length, sum, or the range itself",
+ use:"Problem asks for a contiguous range satisfying a constraint. Two-pointer variant: expand right edge, shrink left when constraint breaks.",
+ nouse:"Non-contiguous subsets or subsequences (use DP). Unordered selection. If input is a tree/graph, this doesn't apply.",
+ whyWorks:"By maintaining a window [left..right], each element enters and leaves the window at most once → O(n). The constraint check inside the while-loop ensures we always maintain validity.",
+ tc:"O(n)",sc:"O(k) where k = window content",
+ tpl:`def longest_k_distinct(s, k):
+    left = 0
+    counts = {}
+    best = 0
+    for right in range(len(s)):
+        counts[s[right]] = counts.get(s[right], 0) + 1
+        while len(counts) > k:       # constraint broken
+            counts[s[left]] -= 1
+            if counts[s[left]] == 0:
+                del counts[s[left]]
+            left += 1                 # shrink from left
+        best = max(best, right - left + 1)
+    return best`,
+ probs:[
+  {id:3,n:"Longest Substring Without Repeating Characters",d:"Medium",c:["Amazon","Meta","Microsoft","Google","Bloomberg"],u:"https://leetcode.com/problems/longest-substring-without-repeating-characters/"},
+  {id:76,n:"Minimum Window Substring",d:"Hard",c:["Meta","Amazon","LinkedIn","Google"],u:"https://leetcode.com/problems/minimum-window-substring/"},
+  {id:424,n:"Longest Repeating Character Replacement",d:"Medium",c:["Google","Amazon"],u:"https://leetcode.com/problems/longest-repeating-character-replacement/"},
+  {id:209,n:"Minimum Size Subarray Sum",d:"Medium",c:["Amazon","Apple"],u:"https://leetcode.com/problems/minimum-size-subarray-sum/"},
+  {id:239,n:"Sliding Window Maximum",d:"Hard",c:["Amazon","Google","Meta"],u:"https://leetcode.com/problems/sliding-window-maximum/"}
+]},
+{id:"fast-slow",name:"Fast & Slow Pointers",cat:"Linked List",icon:"🐢🐇",
+ yt:[{t:"Linked List Cycle — NeetCode",u:"https://www.youtube.com/watch?v=gBTe7lFR3vc"},{t:"Floyd's Cycle Detection — Abdul Bari",u:"https://www.youtube.com/watch?v=Aup0kOWoMVg"}],
+ signals:["Detect cycle in a linked list","Find middle of linked list in one pass","Happy number / cycle in number sequence","Find start of cycle (Floyd's algorithm)"],
+ kw:{s:["cycle in linked list","happy number","middle of linked list","floyd","linked list cycle"],w:["linked list","cycle","loop","middle","meeting point"]},
+ input:"Linked list or sequence",output:"Boolean or node reference",
+ use:"Linked-list structures where you need O(1) space cycle/middle detection.",
+ nouse:"Arrays with random access (use index math). Weighted graphs.",
+ whyWorks:"Fast moves 2x speed of slow. If there's a cycle, fast will eventually lap slow. If no cycle, fast hits null. Math guarantees meeting inside the cycle.",
+ tc:"O(n)",sc:"O(1)",
+ tpl:`def has_cycle(head):
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow == fast:
+            return True
+    return False`,
+ probs:[
+  {id:141,n:"Linked List Cycle",d:"Easy",c:["Amazon","Microsoft","Meta"],u:"https://leetcode.com/problems/linked-list-cycle/"},
+  {id:142,n:"Linked List Cycle II",d:"Medium",c:["Amazon","Microsoft"],u:"https://leetcode.com/problems/linked-list-cycle-ii/"},
+  {id:876,n:"Middle of the Linked List",d:"Easy",c:["Amazon","Google"],u:"https://leetcode.com/problems/middle-of-the-linked-list/"},
+  {id:202,n:"Happy Number",d:"Easy",c:["Amazon","Apple","Google"],u:"https://leetcode.com/problems/happy-number/"}
+]},
+{id:"merge-intervals",name:"Merge Intervals",cat:"Array",icon:"📊",
+ yt:[{t:"Merge Intervals — NeetCode",u:"https://www.youtube.com/watch?v=44H3cEC2fFM"},{t:"Interval Scheduling — Abdul Bari",u:"https://www.youtube.com/watch?v=hDhf04AJIRs"}],
+ signals:["Overlapping time ranges, meetings, bookings","Insert a new interval and merge overlaps","Count max concurrent events / min meeting rooms","Any problem with [start, end] pairs"],
+ kw:{s:["merge intervals","meeting room","overlap","interval schedule","booking","non-overlapping"],w:["interval","start end","range","meeting","schedule","overlap"]},
+ input:"Array of [start, end] pairs",output:"Merged array or count",
+ use:"You have pairs [start, end] and care about overlaps.",
+ nouse:"Disjoint ranges with no overlap concern. Single-dimensional sorted search (use binary search).",
+ whyWorks:"Sorting by start time means overlaps are always between consecutive intervals. One pass merges them greedily.",
+ tc:"O(n log n) — sorting dominates",sc:"O(n) output",
+ tpl:`def merge(intervals):
+    intervals.sort(key=lambda x: x[0])
+    merged = [intervals[0]]
+    for start, end in intervals[1:]:
+        if start <= merged[-1][1]:
+            merged[-1][1] = max(merged[-1][1], end)
+        else:
+            merged.append([start, end])
+    return merged`,
+ probs:[
+  {id:56,n:"Merge Intervals",d:"Medium",c:["Meta","Amazon","Google","Microsoft","Bloomberg"],u:"https://leetcode.com/problems/merge-intervals/"},
+  {id:57,n:"Insert Interval",d:"Medium",c:["Google","Amazon","Meta"],u:"https://leetcode.com/problems/insert-interval/"},
+  {id:253,n:"Meeting Rooms II",d:"Medium",c:["Amazon","Google","Meta","Uber"],u:"https://leetcode.com/problems/meeting-rooms-ii/"},
+  {id:435,n:"Non-overlapping Intervals",d:"Medium",c:["Amazon"],u:"https://leetcode.com/problems/non-overlapping-intervals/"}
+]},
+{id:"tree-bfs",name:"Tree BFS",cat:"Tree",icon:"🌲",
+ yt:[{t:"BFS Level Order — NeetCode",u:"https://www.youtube.com/watch?v=6ZnyEApgFYg"},{t:"BFS Explained — William Fiset",u:"https://www.youtube.com/watch?v=oDqjPvD54Ss"}],
+ signals:["Level-order traversal of binary tree","Shortest path / minimum depth in tree","Right side view, zigzag, connect level siblings","Any 'by level' processing"],
+ kw:{s:["level order","by level","minimum depth","right side view","zigzag","breadth first tree"],w:["tree","level","depth","bfs","queue"]},
+ input:"Binary tree root",output:"List of lists (levels), depth, or view",
+ use:"Binary tree problems requiring level-by-level logic.",
+ nouse:"Path-from-root problems (use DFS). Weighted graphs (use Dijkstra).",
+ whyWorks:"Queue processes one level at a time. len(queue) at the start of each iteration = number of nodes in that level. Guarantees correct level grouping.",
+ tc:"O(n)",sc:"O(w) where w = max width",
+ tpl:`from collections import deque
+def level_order(root):
+    if not root: return []
+    q = deque([root])
+    result = []
+    while q:
+        level = []
+        for _ in range(len(q)):
+            node = q.popleft()
+            level.append(node.val)
+            if node.left:  q.append(node.left)
+            if node.right: q.append(node.right)
+        result.append(level)
+    return result`,
+ probs:[
+  {id:102,n:"Binary Tree Level Order Traversal",d:"Medium",c:["Amazon","Meta","Microsoft"],u:"https://leetcode.com/problems/binary-tree-level-order-traversal/"},
+  {id:199,n:"Binary Tree Right Side View",d:"Medium",c:["Meta","Amazon"],u:"https://leetcode.com/problems/binary-tree-right-side-view/"},
+  {id:103,n:"Binary Tree Zigzag Level Order",d:"Medium",c:["Meta","Amazon"],u:"https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/"},
+  {id:111,n:"Minimum Depth of Binary Tree",d:"Easy",c:["Meta","Amazon"],u:"https://leetcode.com/problems/minimum-depth-of-binary-tree/"}
+]},
+{id:"tree-dfs",name:"Tree DFS",cat:"Tree",icon:"🌳",
+ yt:[{t:"DFS on Trees — NeetCode",u:"https://www.youtube.com/watch?v=YSPKskvStjA"},{t:"Tree Traversals — Abdul Bari",u:"https://www.youtube.com/watch?v=BHB0B1jFKQo"}],
+ signals:["Root-to-leaf path problems","Sum paths, diameter, longest path","BST validation, symmetry check","Subtree matching, LCA"],
+ kw:{s:["root to leaf","path sum","validate bst","tree diameter","lowest common ancestor","lca","max depth","binary tree maximum path"],w:["tree","path","subtree","recursion","dfs","preorder","inorder","postorder"]},
+ input:"Binary tree root",output:"Boolean, sum, path list, or node",
+ use:"Tree problems involving paths, validation, or subtree info.",
+ nouse:"Level-by-level grouping (use BFS).",
+ whyWorks:"Recursion naturally follows tree structure. At each node you combine results from left and right subtrees (post-order) or pass state downward (pre-order).",
+ tc:"O(n)",sc:"O(h) where h = tree height",
+ tpl:`def max_depth(root):
+    if not root: return 0
+    return 1 + max(max_depth(root.left),
+                   max_depth(root.right))`,
+ probs:[
+  {id:112,n:"Path Sum",d:"Easy",c:["Amazon"],u:"https://leetcode.com/problems/path-sum/"},
+  {id:124,n:"Binary Tree Maximum Path Sum",d:"Hard",c:["Meta","Amazon","Microsoft","Google"],u:"https://leetcode.com/problems/binary-tree-maximum-path-sum/"},
+  {id:98,n:"Validate Binary Search Tree",d:"Medium",c:["Amazon","Meta","Microsoft"],u:"https://leetcode.com/problems/validate-binary-search-tree/"},
+  {id:236,n:"Lowest Common Ancestor",d:"Medium",c:["Meta","Amazon","LinkedIn"],u:"https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/"},
+  {id:543,n:"Diameter of Binary Tree",d:"Easy",c:["Meta","Amazon","Google"],u:"https://leetcode.com/problems/diameter-of-binary-tree/"}
+]},
+{id:"graph-bfs-dfs",name:"Graph BFS / DFS",cat:"Graph",icon:"🕸️",
+ yt:[{t:"BFS / DFS on Graphs — NeetCode",u:"https://www.youtube.com/watch?v=tWVWeAqZ0WU"},{t:"BFS & DFS — William Fiset",u:"https://www.youtube.com/watch?v=pcKY4hjDrxk"}],
+ signals:["Number of islands / connected components in grid","Shortest path (unweighted)","Clone graph, flood fill, word ladder","Grid reachability / exploration"],
+ kw:{s:["number of islands","connected components","flood fill","clone graph","word ladder","shortest path unweighted","rotten orange"],w:["graph","grid","matrix","connected","visit","bfs","dfs","neighbors","adjacent"]},
+ input:"Adjacency list, edge list, or 2D grid",output:"Count, boolean, or cloned structure",
+ use:"Unweighted graph/grid traversal, connectivity.",
+ nouse:"Weighted shortest path (Dijkstra). Dependency ordering (topo sort).",
+ whyWorks:"BFS explores all nodes at distance d before d+1 — guarantees shortest path in unweighted graphs. DFS explores deeply — good for connected components.",
+ tc:"O(V + E)",sc:"O(V)",
+ tpl:`from collections import deque
+def num_islands(grid):
+    if not grid: return 0
+    R, C = len(grid), len(grid[0])
+    count = 0
+    def bfs(r, c):
+        q = deque([(r,c)])
+        grid[r][c] = '0'
+        while q:
+            x,y = q.popleft()
+            for dx,dy in [(1,0),(-1,0),(0,1),(0,-1)]:
+                nx,ny = x+dx,y+dy
+                if 0<=nx<R and 0<=ny<C and grid[nx][ny]=='1':
+                    grid[nx][ny]='0'
+                    q.append((nx,ny))
+    for r in range(R):
+        for c in range(C):
+            if grid[r][c]=='1':
+                bfs(r,c); count+=1
+    return count`,
+ probs:[
+  {id:200,n:"Number of Islands",d:"Medium",c:["Amazon","Meta","Google","Microsoft"],u:"https://leetcode.com/problems/number-of-islands/"},
+  {id:133,n:"Clone Graph",d:"Medium",c:["Meta","Amazon","Google"],u:"https://leetcode.com/problems/clone-graph/"},
+  {id:127,n:"Word Ladder",d:"Hard",c:["Amazon","Meta","Google"],u:"https://leetcode.com/problems/word-ladder/"},
+  {id:695,n:"Max Area of Island",d:"Medium",c:["Meta","Amazon"],u:"https://leetcode.com/problems/max-area-of-island/"},
+  {id:994,n:"Rotting Oranges",d:"Medium",c:["Amazon","Meta"],u:"https://leetcode.com/problems/rotting-oranges/"}
+]},
+{id:"topo-sort",name:"Topological Sort",cat:"Graph",icon:"🔗",
+ yt:[{t:"Course Schedule — NeetCode",u:"https://www.youtube.com/watch?v=EgI5nU9etnU"},{t:"Topological Sort — Abdul Bari",u:"https://www.youtube.com/watch?v=dis_c84ejhQ"}],
+ signals:["Task scheduling with prerequisites","Build/compile order dependencies","'Must come before' ordering","Cycle detection in directed graph"],
+ kw:{s:["course schedule","build order","prerequisite","topological","dependency order","alien dictionary"],w:["dependency","directed","precede","must come before","indegree","outdegree","dag"]},
+ input:"Directed graph (adjacency list + node count)",output:"Valid ordering or boolean",
+ use:"Directed graph needing valid linear ordering.",
+ nouse:"Undirected graphs. No ordering semantics.",
+ whyWorks:"Kahn's: repeatedly pick nodes with indegree 0. If all nodes are picked, valid order exists. If not, there's a cycle.",
+ tc:"O(V + E)",sc:"O(V + E)",
+ tpl:`from collections import deque, defaultdict
+def topo_sort(n, prereqs):
+    graph = defaultdict(list)
+    indeg = [0] * n
+    for a, b in prereqs:
+        graph[b].append(a)
+        indeg[a] += 1
+    q = deque(i for i in range(n) if indeg[i]==0)
+    order = []
+    while q:
+        node = q.popleft()
+        order.append(node)
+        for nxt in graph[node]:
+            indeg[nxt] -= 1
+            if indeg[nxt]==0: q.append(nxt)
+    return order if len(order)==n else []`,
+ probs:[
+  {id:207,n:"Course Schedule",d:"Medium",c:["Amazon","Meta","Google"],u:"https://leetcode.com/problems/course-schedule/"},
+  {id:210,n:"Course Schedule II",d:"Medium",c:["Meta","Amazon","Google"],u:"https://leetcode.com/problems/course-schedule-ii/"},
+  {id:269,n:"Alien Dictionary",d:"Hard",c:["Meta","Amazon","Google","Airbnb"],u:"https://leetcode.com/problems/alien-dictionary/"}
+]},
+{id:"binary-search",name:"Modified Binary Search",cat:"Search",icon:"🎯",
+ yt:[{t:"Binary Search — NeetCode",u:"https://www.youtube.com/watch?v=U8XENwh8Oy8"},{t:"Binary Search — Abdul Bari",u:"https://www.youtube.com/watch?v=C2apEw9pgtw"}],
+ signals:["Sorted/rotated array search","Find boundary or first/last occurrence","'Minimum X such that condition(X) is true' (search on answer)","Koko Eating Bananas, Ship Packages type"],
+ kw:{s:["sorted array","rotated sorted","binary search","find peak","minimum capacity","koko","ship packages","first bad version","search insert"],w:["sorted","search","find","minimum","maximum","boundary","log n"]},
+ input:"Sorted array or monotonic answer space",output:"Index or optimal value",
+ use:"Sorted data, monotonic predicate, or O(log n) required.",
+ nouse:"Unsorted data with no monotonicity.",
+ whyWorks:"Monotonicity guarantees that if condition(mid) is true, all values beyond mid also satisfy it (or vice versa). We can halve the space each step.",
+ tc:"O(log n)",sc:"O(1)",
+ tpl:`def search(nums, target):
+    lo, hi = 0, len(nums)-1
+    while lo <= hi:
+        mid = (lo+hi)//2
+        if nums[mid] == target: return mid
+        elif nums[mid] < target: lo = mid+1
+        else: hi = mid-1
+    return -1
+
+# Search on answer pattern:
+def min_capacity(weights, days):
+    lo, hi = max(weights), sum(weights)
+    while lo < hi:
+        mid = (lo+hi)//2
+        if can_ship(weights, days, mid):
+            hi = mid
+        else:
+            lo = mid + 1
+    return lo`,
+ probs:[
+  {id:33,n:"Search in Rotated Sorted Array",d:"Medium",c:["Amazon","Meta","Microsoft","Google"],u:"https://leetcode.com/problems/search-in-rotated-sorted-array/"},
+  {id:162,n:"Find Peak Element",d:"Medium",c:["Meta","Google"],u:"https://leetcode.com/problems/find-peak-element/"},
+  {id:875,n:"Koko Eating Bananas",d:"Medium",c:["Google","Meta"],u:"https://leetcode.com/problems/koko-eating-bananas/"},
+  {id:1011,n:"Capacity To Ship Packages",d:"Medium",c:["Amazon","Google"],u:"https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/"},
+  {id:4,n:"Median of Two Sorted Arrays",d:"Hard",c:["Amazon","Apple","Google"],u:"https://leetcode.com/problems/median-of-two-sorted-arrays/"}
+]},
+{id:"top-k",name:"Top-K / Heap",cat:"Heap",icon:"⛰️",
+ yt:[{t:"Top K Frequent Elements — NeetCode",u:"https://www.youtube.com/watch?v=YPTqKIgVk-k"},{t:"Heaps — Abdul Bari",u:"https://www.youtube.com/watch?v=HqPJF2L5h9U"}],
+ signals:["K largest/smallest/most frequent elements","Kth element in a stream","K closest points to origin","Merge K sorted lists"],
+ kw:{s:["k largest","k smallest","kth largest","top k frequent","k closest","merge k sorted"],w:["top k","kth","priority queue","heap","frequent"]},
+ input:"Array or stream of elements",output:"K elements or single kth value",
+ use:"Select best K out of N efficiently.",nouse:"Need all sorted (just sort). K equals N.",
+ whyWorks:"A min-heap of size K: push each element, pop when size > K. After N elements, heap contains K largest. O(N log K) < O(N log N).",
+ tc:"O(n log k)",sc:"O(k)",
+ tpl:`import heapq
+def top_k_frequent(nums, k):
+    counts = {}
+    for n in nums:
+        counts[n] = counts.get(n,0)+1
+    return heapq.nlargest(k, counts, key=counts.get)`,
+ probs:[
+  {id:215,n:"Kth Largest Element",d:"Medium",c:["Meta","Amazon","Google","Apple"],u:"https://leetcode.com/problems/kth-largest-element-in-an-array/"},
+  {id:347,n:"Top K Frequent Elements",d:"Medium",c:["Meta","Amazon","Google"],u:"https://leetcode.com/problems/top-k-frequent-elements/"},
+  {id:973,n:"K Closest Points to Origin",d:"Medium",c:["Meta","Amazon","Google"],u:"https://leetcode.com/problems/k-closest-points-to-origin/"},
+  {id:23,n:"Merge k Sorted Lists",d:"Hard",c:["Amazon","Meta","Microsoft"],u:"https://leetcode.com/problems/merge-k-sorted-lists/"}
+]},
+{id:"backtracking",name:"Backtracking",cat:"Recursion",icon:"🔙",
+ yt:[{t:"Backtracking — NeetCode",u:"https://www.youtube.com/watch?v=REOH22Xwdkk"},{t:"N-Queens — Abdul Bari",u:"https://www.youtube.com/watch?v=xFv_Hl4B83A"}],
+ signals:["Generate all subsets/permutations/combinations","Word search on grid, N-queens","Constraint satisfaction (Sudoku)","'All valid configurations' problems"],
+ kw:{s:["all subsets","all permutations","all combinations","n queens","word search","sudoku","generate parentheses","letter combinations"],w:["all","every","generate","enumerate","combinations","permutations","valid configurations"]},
+ input:"Array, string, or grid (n is small!)",output:"List of all valid results",
+ use:"Need EVERY valid answer, not just one or a count. n is small (≤ 20).",
+ nouse:"Only need count (use DP). Only need one answer (use greedy/DP).",
+ whyWorks:"Systematically explores all candidates. The 'backtrack' step (undo) prunes invalid branches early, making it faster than pure brute force.",
+ tc:"O(2ⁿ) or O(n!) — exponential",sc:"O(n) recursion depth",
+ tpl:`def subsets(nums):
+    result = []
+    def bt(start, path):
+        result.append(path[:])
+        for i in range(start, len(nums)):
+            path.append(nums[i])
+            bt(i+1, path)
+            path.pop()    # ← the backtrack
+    bt(0, [])
+    return result`,
+ probs:[
+  {id:78,n:"Subsets",d:"Medium",c:["Amazon","Meta","Google"],u:"https://leetcode.com/problems/subsets/"},
+  {id:46,n:"Permutations",d:"Medium",c:["Meta","Amazon","Microsoft"],u:"https://leetcode.com/problems/permutations/"},
+  {id:39,n:"Combination Sum",d:"Medium",c:["Amazon","Meta"],u:"https://leetcode.com/problems/combination-sum/"},
+  {id:79,n:"Word Search",d:"Medium",c:["Meta","Amazon","Microsoft"],u:"https://leetcode.com/problems/word-search/"},
+  {id:51,n:"N-Queens",d:"Hard",c:["Amazon","Google"],u:"https://leetcode.com/problems/n-queens/"}
+]},
+{id:"dp",name:"Dynamic Programming",cat:"DP",icon:"🧮",
+ yt:[{t:"DP Patterns — NeetCode",u:"https://www.youtube.com/watch?v=mBNrRy2_hVs"},{t:"Dynamic Programming — Abdul Bari",u:"https://www.youtube.com/watch?v=lVR2u9lsxl8"},{t:"DP for Beginners — Aditya Verma",u:"https://www.youtube.com/watch?v=nqowUJzG-iM"}],
+ signals:["'Number of ways' to reach a target","'Minimum/maximum cost' with choices at each step","Longest/shortest subsequence","Overlapping subproblems + optimal substructure"],
+ kw:{s:["number of ways","minimum cost","maximum profit","longest common subsequence","edit distance","climbing stairs","house robber","knapsack","coin change","longest increasing subsequence","word break"],w:["minimum","maximum","longest","shortest","count ways","profit","optimal","subsequence","ways to"]},
+ input:"Array, string, or two strings",output:"Optimal value or count",
+ use:"Overlapping subproblems AND optimal substructure.",
+ nouse:"Greedy suffices (each local choice is globally optimal). Each subproblem is independent.",
+ whyWorks:"By caching subproblem results (memoization) or building bottom-up (tabulation), we avoid recomputing the same states. Reduces exponential to polynomial.",
+ tc:"O(n·k) or O(n²) typically",sc:"O(n) or O(n²)",
+ tpl:`# Bottom-up tabulation (coin change)
+def coin_change(coins, amount):
+    dp = [float('inf')]*(amount+1)
+    dp[0] = 0
+    for c in coins:
+        for x in range(c, amount+1):
+            dp[x] = min(dp[x], dp[x-c]+1)
+    return dp[amount] if dp[amount]!=float('inf') else -1
+
+# Top-down memoization pattern
+from functools import lru_cache
+def longest_common_subseq(s1, s2):
+    @lru_cache(maxsize=None)
+    def dp(i, j):
+        if i==len(s1) or j==len(s2): return 0
+        if s1[i]==s2[j]: return 1+dp(i+1,j+1)
+        return max(dp(i+1,j), dp(i,j+1))
+    return dp(0,0)`,
+ probs:[
+  {id:70,n:"Climbing Stairs",d:"Easy",c:["Amazon","Google"],u:"https://leetcode.com/problems/climbing-stairs/"},
+  {id:198,n:"House Robber",d:"Medium",c:["Amazon","Google"],u:"https://leetcode.com/problems/house-robber/"},
+  {id:322,n:"Coin Change",d:"Medium",c:["Amazon","Meta","Google"],u:"https://leetcode.com/problems/coin-change/"},
+  {id:300,n:"Longest Increasing Subsequence",d:"Medium",c:["Meta","Amazon","Google"],u:"https://leetcode.com/problems/longest-increasing-subsequence/"},
+  {id:72,n:"Edit Distance",d:"Medium",c:["Google","Amazon","Meta"],u:"https://leetcode.com/problems/edit-distance/"},
+  {id:1143,n:"Longest Common Subsequence",d:"Medium",c:["Amazon","Google"],u:"https://leetcode.com/problems/longest-common-subsequence/"},
+  {id:139,n:"Word Break",d:"Medium",c:["Meta","Amazon","Google"],u:"https://leetcode.com/problems/word-break/"}
+]},
+{id:"mono-stack",name:"Monotonic Stack",cat:"Stack",icon:"📉",
+ yt:[{t:"Monotonic Stack — NeetCode",u:"https://www.youtube.com/watch?v=zx5Sw9130L0"},{t:"Next Greater Element — TechDose",u:"https://www.youtube.com/watch?v=Du881K7Jtk8"}],
+ signals:["'Next greater/smaller element' for each index","Largest rectangle in histogram","Trapping rain water (stack variant)","Daily temperatures"],
+ kw:{s:["next greater","next smaller","daily temperature","largest rectangle","monotonic stack"],w:["stack","next","previous","greater","smaller","histogram"]},
+ input:"Array of numbers",output:"Array of next-greater/distances or area",
+ use:"Need next/previous greater or smaller element for every index in O(n).",
+ nouse:"General stack problems (parentheses matching). Sliding window max (use deque).",
+ whyWorks:"Stack maintains monotonic order. When a new element breaks monotonicity, we pop and process — each element is pushed/popped at most once → O(n).",
+ tc:"O(n)",sc:"O(n)",
+ tpl:`def daily_temperatures(temps):
+    result = [0]*len(temps)
+    stack = []  # indices, decreasing temps
+    for i, t in enumerate(temps):
+        while stack and temps[stack[-1]] < t:
+            j = stack.pop()
+            result[j] = i - j
+        stack.append(i)
+    return result`,
+ probs:[
+  {id:739,n:"Daily Temperatures",d:"Medium",c:["Amazon","Google"],u:"https://leetcode.com/problems/daily-temperatures/"},
+  {id:496,n:"Next Greater Element I",d:"Easy",c:["Amazon"],u:"https://leetcode.com/problems/next-greater-element-i/"},
+  {id:84,n:"Largest Rectangle in Histogram",d:"Hard",c:["Amazon","Google","Microsoft"],u:"https://leetcode.com/problems/largest-rectangle-in-histogram/"},
+  {id:42,n:"Trapping Rain Water",d:"Hard",c:["Amazon","Google","Meta"],u:"https://leetcode.com/problems/trapping-rain-water/"}
+]},
+{id:"prefix-sum",name:"Prefix Sum",cat:"Array",icon:"➕",
+ yt:[{t:"Prefix Sum — NeetCode",u:"https://www.youtube.com/watch?v=5WZl3MMT0Eg"},{t:"Subarray Sum Equals K — NeetCode",u:"https://www.youtube.com/watch?v=fFVZt-6sgyo"}],
+ signals:["Range sum queries","'Number of subarrays summing to K'","Running totals, cumulative sums","Product of array except self"],
+ kw:{s:["subarray sum equals k","range sum","prefix sum","product except self","contiguous array"],w:["sum","subarray","range","cumulative","prefix","product"]},
+ input:"Array of numbers",output:"Count, sum, or transformed array",
+ use:"Repeated range queries or counting subarrays by sum.",
+ nouse:"Single pass without range queries — simple accumulator works.",
+ whyWorks:"prefix[j] - prefix[i] = sum(arr[i..j]). Combined with a hashmap counting prefix sums, we can find subarrays summing to K in O(n).",
+ tc:"O(n)",sc:"O(n)",
+ tpl:`def subarray_sum_k(nums, k):
+    count = 0
+    prefix = 0
+    seen = {0: 1}
+    for n in nums:
+        prefix += n
+        count += seen.get(prefix - k, 0)
+        seen[prefix] = seen.get(prefix, 0) + 1
+    return count`,
+ probs:[
+  {id:560,n:"Subarray Sum Equals K",d:"Medium",c:["Meta","Amazon","Google"],u:"https://leetcode.com/problems/subarray-sum-equals-k/"},
+  {id:238,n:"Product of Array Except Self",d:"Medium",c:["Amazon","Meta","Microsoft"],u:"https://leetcode.com/problems/product-of-array-except-self/"},
+  {id:525,n:"Contiguous Array",d:"Medium",c:["Meta","Amazon"],u:"https://leetcode.com/problems/contiguous-array/"}
+]},
+{id:"union-find",name:"Union-Find",cat:"Graph",icon:"🔗",
+ yt:[{t:"Union Find — NeetCode",u:"https://www.youtube.com/watch?v=8f1XPm4WOUc"},{t:"Disjoint Sets — Abdul Bari",u:"https://www.youtube.com/watch?v=wU6udHRIkcc"}],
+ signals:["Dynamic connectivity queries","Count groups as you merge edges","'Are A and B in the same group?'","Redundant connection, accounts merge"],
+ kw:{s:["union find","disjoint set","connected components","accounts merge","redundant connection","friend circle"],w:["group","connected","merge","equivalence"]},
+ input:"Edges or equivalence pairs",output:"Count of components or boolean",
+ use:"Connectivity that changes over time; merging groups incrementally.",
+ nouse:"Static connectivity (single BFS/DFS is simpler).",
+ whyWorks:"Path compression + union by rank makes each operation nearly O(1). Perfect for incremental 'add edge, query connectivity' patterns.",
+ tc:"≈ O(α(n)) per op ≈ O(1)",sc:"O(n)",
+ tpl:`class DSU:
+    def __init__(self, n):
+        self.p = list(range(n))
+        self.r = [0]*n
+    def find(self, x):
+        if self.p[x]!=x:
+            self.p[x]=self.find(self.p[x])
+        return self.p[x]
+    def union(self, a, b):
+        a,b = self.find(a),self.find(b)
+        if a==b: return False
+        if self.r[a]<self.r[b]: a,b=b,a
+        self.p[b]=a
+        if self.r[a]==self.r[b]: self.r[a]+=1
+        return True`,
+ probs:[
+  {id:547,n:"Number of Provinces",d:"Medium",c:["Amazon","Meta"],u:"https://leetcode.com/problems/number-of-provinces/"},
+  {id:684,n:"Redundant Connection",d:"Medium",c:["Amazon","Google"],u:"https://leetcode.com/problems/redundant-connection/"},
+  {id:721,n:"Accounts Merge",d:"Medium",c:["Meta","Amazon"],u:"https://leetcode.com/problems/accounts-merge/"}
+]},
+{id:"trie",name:"Trie (Prefix Tree)",cat:"Tree",icon:"🌴",
+ yt:[{t:"Implement Trie — NeetCode",u:"https://www.youtube.com/watch?v=oobqoCJlHA0"},{t:"Trie Data Structure — Abdul Bari",u:"https://www.youtube.com/watch?v=zIjfhVPRZCg"}],
+ signals:["Prefix search / autocomplete","Word dictionary queries","Longest common prefix","Word Search II"],
+ kw:{s:["implement trie","word dictionary","prefix tree","autocomplete","word search ii"],w:["prefix","trie","dictionary","word","common prefix"]},
+ input:"Set of strings",output:"Boolean or list of matches",
+ use:"Many string queries sharing prefixes.",nouse:"One-off string check (use a set).",
+ whyWorks:"Trie stores shared prefixes once. Search/insert is O(L) per word. Avoids O(N×L) repeated string comparisons.",
+ tc:"O(L) per operation",sc:"O(sum of word lengths)",
+ tpl:`class Trie:
+    def __init__(self):
+        self.ch = {}
+        self.end = False
+    def insert(self, word):
+        node = self
+        for c in word:
+            if c not in node.ch: node.ch[c] = Trie()
+            node = node.ch[c]
+        node.end = True
+    def search(self, word):
+        node = self
+        for c in word:
+            if c not in node.ch: return False
+            node = node.ch[c]
+        return node.end`,
+ probs:[
+  {id:208,n:"Implement Trie",d:"Medium",c:["Amazon","Meta","Google"],u:"https://leetcode.com/problems/implement-trie-prefix-tree/"},
+  {id:211,n:"Design Add and Search Words",d:"Medium",c:["Meta","Amazon"],u:"https://leetcode.com/problems/design-add-and-search-words-data-structure/"},
+  {id:212,n:"Word Search II",d:"Hard",c:["Amazon","Microsoft"],u:"https://leetcode.com/problems/word-search-ii/"}
+]},
+{id:"cyclic-sort",name:"Cyclic Sort",cat:"Array",icon:"🔁",
+ yt:[{t:"Missing Number — NeetCode",u:"https://www.youtube.com/watch?v=WnPLSRLSANE"},{t:"Cyclic Sort Pattern — DesignGurus",u:"https://www.youtube.com/watch?v=JfinxytTYFQ"}],
+ signals:["Array has numbers in range [1..n] or [0..n]","Find missing/duplicate number","First missing positive integer","O(1) space with bounded values"],
+ kw:{s:["numbers from 1 to n","range 1 to n","missing number","first missing positive","find the duplicate","disappeared"],w:["missing","duplicate","bounded range"]},
+ input:"Array of integers in bounded range",output:"Missing or duplicate value",
+ use:"Values bounded by n, need O(n) time + O(1) space.",nouse:"Unbounded values — use hashset.",
+ whyWorks:"Each number has a 'correct' position (val-1). Swapping to correct positions in-place lets us find mismatches in a second pass.",
+ tc:"O(n)",sc:"O(1)",
+ tpl:`def first_missing_positive(nums):
+    n = len(nums)
+    for i in range(n):
+        while 1<=nums[i]<=n and nums[nums[i]-1]!=nums[i]:
+            nums[nums[i]-1],nums[i] = nums[i],nums[nums[i]-1]
+    for i in range(n):
+        if nums[i]!=i+1: return i+1
+    return n+1`,
+ probs:[
+  {id:268,n:"Missing Number",d:"Easy",c:["Amazon","Microsoft"],u:"https://leetcode.com/problems/missing-number/"},
+  {id:448,n:"Find All Disappeared Numbers",d:"Easy",c:["Google","Amazon"],u:"https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/"},
+  {id:287,n:"Find the Duplicate Number",d:"Medium",c:["Amazon","Meta","Google"],u:"https://leetcode.com/problems/find-the-duplicate-number/"},
+  {id:41,n:"First Missing Positive",d:"Hard",c:["Amazon","Meta","Stripe"],u:"https://leetcode.com/problems/first-missing-positive/"}
+]},
+{id:"xor",name:"Bitwise XOR",cat:"Math/Bit",icon:"⚡",
+ yt:[{t:"Single Number — NeetCode",u:"https://www.youtube.com/watch?v=qMPX1AOa83k"},{t:"Bit Manipulation — NeetCode",u:"https://www.youtube.com/watch?v=5Km3utixwZs"}],
+ signals:["'Every number appears twice except one'","Missing number without extra space","Find two numbers appearing once"],
+ kw:{s:["appears twice","single number","appears once","every element twice"],w:["xor","bit","single","unique"]},
+ input:"Array of integers",output:"The unique value",
+ use:"Counting-based uniqueness with O(1) space. x^x=0, x^0=x.",nouse:"General counting — use hashmap.",
+ whyWorks:"XOR of a number with itself is 0. XOR of all elements cancels out pairs, leaving only the unique element.",
+ tc:"O(n)",sc:"O(1)",
+ tpl:`def single_number(nums):
+    result = 0
+    for n in nums:
+        result ^= n
+    return result`,
+ probs:[
+  {id:136,n:"Single Number",d:"Easy",c:["Amazon","Meta"],u:"https://leetcode.com/problems/single-number/"},
+  {id:260,n:"Single Number III",d:"Medium",c:["Amazon"],u:"https://leetcode.com/problems/single-number-iii/"}
+]},
+{id:"hashmap",name:"HashMap / HashSet",cat:"Array/String",icon:"🗺️",
+ yt:[{t:"Two Sum — NeetCode",u:"https://www.youtube.com/watch?v=KLlXCFG5TnA"},{t:"Group Anagrams — NeetCode",u:"https://www.youtube.com/watch?v=vzdNOK2oB2E"}],
+ signals:["O(1) lookup / frequency counting","Two Sum (unsorted)","Anagram grouping","Detect duplicates, first unique"],
+ kw:{s:["two sum","contains duplicate","valid anagram","group anagrams","first unique","longest consecutive","two sum unsorted"],w:["count","frequency","duplicate","unique","anagram","hashmap","dictionary"]},
+ input:"Unsorted array or string",output:"Indices, boolean, or groups",
+ use:"Unsorted data needing O(1) lookup or counts.",nouse:"Memory-constrained — prefer two pointers on sorted data.",
+ whyWorks:"Hash table provides O(1) average lookup. For Two Sum: store {value: index}, check if complement exists before inserting.",
+ tc:"O(n)",sc:"O(n)",
+ tpl:`def two_sum(nums, target):
+    seen = {}
+    for i, n in enumerate(nums):
+        complement = target - n
+        if complement in seen:
+            return [seen[complement], i]
+        seen[n] = i
+    return []`,
+ probs:[
+  {id:1,n:"Two Sum",d:"Easy",c:["Amazon","Meta","Apple","Microsoft","Google"],u:"https://leetcode.com/problems/two-sum/"},
+  {id:49,n:"Group Anagrams",d:"Medium",c:["Amazon","Meta","Uber"],u:"https://leetcode.com/problems/group-anagrams/"},
+  {id:128,n:"Longest Consecutive Sequence",d:"Medium",c:["Meta","Amazon","Google"],u:"https://leetcode.com/problems/longest-consecutive-sequence/"},
+  {id:217,n:"Contains Duplicate",d:"Easy",c:["Amazon"],u:"https://leetcode.com/problems/contains-duplicate/"}
+]},
+{id:"two-heaps",name:"Two Heaps",cat:"Heap",icon:"⚖️",
+ yt:[{t:"Find Median from Data Stream — NeetCode",u:"https://www.youtube.com/watch?v=itmhHWaHupI"}],
+ signals:["Running median of data stream","Sliding window median","Need both extremes of a dynamic set"],
+ kw:{s:["median of data stream","sliding window median","running median"],w:["median","two heaps","max heap","min heap"]},
+ input:"Stream of numbers",output:"Median after each insertion",
+ use:"Track the middle of a dynamic dataset efficiently.",nouse:"Static array — sort and index.",
+ whyWorks:"Max-heap holds smaller half, min-heap holds larger half. Balancing after each insert keeps the median at the tops. O(log n) per insert.",
+ tc:"O(log n) per insert",sc:"O(n)",
+ tpl:`import heapq
+class MedianFinder:
+    def __init__(self):
+        self.lo = []  # max-heap (negate)
+        self.hi = []  # min-heap
+    def add(self, num):
+        heapq.heappush(self.lo, -num)
+        heapq.heappush(self.hi, -heapq.heappop(self.lo))
+        if len(self.hi) > len(self.lo):
+            heapq.heappush(self.lo, -heapq.heappop(self.hi))
+    def median(self):
+        if len(self.lo) > len(self.hi): return -self.lo[0]
+        return (-self.lo[0]+self.hi[0])/2`,
+ probs:[
+  {id:295,n:"Find Median from Data Stream",d:"Hard",c:["Amazon","Meta","Google"],u:"https://leetcode.com/problems/find-median-from-data-stream/"},
+  {id:480,n:"Sliding Window Median",d:"Hard",c:["Google"],u:"https://leetcode.com/problems/sliding-window-median/"}
+]},
+{id:"linked-list-reverse",name:"In-place LL Reversal",cat:"Linked List",icon:"↩️",
+ yt:[{t:"Reverse Linked List — NeetCode",u:"https://www.youtube.com/watch?v=G0_I-ZF0S38"}],
+ signals:["Reverse whole or partial linked list","Reverse in K-groups","Rotate linked list"],
+ kw:{s:["reverse linked list","reverse nodes in k","reverse between","rotate list"],w:["linked list","reverse","rotate","k group"]},
+ input:"Linked list head",output:"New head of reversed list",
+ use:"Flip pointer directions without extra memory.",nouse:"Array-based (use slicing).",
+ whyWorks:"Three pointers (prev, curr, next) walk through and flip each .next pointer. O(n) time, O(1) space.",
+ tc:"O(n)",sc:"O(1)",
+ tpl:`def reverse(head):
+    prev = None
+    curr = head
+    while curr:
+        nxt = curr.next
+        curr.next = prev
+        prev = curr
+        curr = nxt
+    return prev`,
+ probs:[
+  {id:206,n:"Reverse Linked List",d:"Easy",c:["Amazon","Meta","Microsoft"],u:"https://leetcode.com/problems/reverse-linked-list/"},
+  {id:92,n:"Reverse Linked List II",d:"Medium",c:["Meta","Amazon"],u:"https://leetcode.com/problems/reverse-linked-list-ii/"},
+  {id:25,n:"Reverse Nodes in k-Group",d:"Hard",c:["Amazon","Meta","Microsoft"],u:"https://leetcode.com/problems/reverse-nodes-in-k-group/"}
+]},
+{id:"greedy",name:"Greedy",cat:"Strategy",icon:"🤑",
+ yt:[{t:"Greedy Algorithms — NeetCode",u:"https://www.youtube.com/watch?v=bC7o8P_Ste4"},{t:"When to Use Greedy — Abdul Bari",u:"https://www.youtube.com/watch?v=ARvQcqJ_-NY"},{t:"Greedy vs DP — Back To Back SWE",u:"https://www.youtube.com/watch?v=mJl-PqHeExk"}],
+ signals:["Locally optimal choice leads to global optimum","Partition / split with greedy criteria","Activity selection / scheduling without ordering dependencies","Jump game — can you reach the end?","'Maximize' or 'minimize' with no overlapping subproblems"],
+ kw:{s:["partition labels","jump game","gas station","task scheduler","assign cookies","lemonade change","minimum number of arrows","non-overlapping intervals","queue reconstruction"],w:["partition","split","greedy","maximize","minimize","assign","schedule","reach","furthest","farthest","locally optimal","each step","one pass"]},
+ input:"Array, String, or list of items to process greedily",output:"Optimal value, boolean (reachable?), or partitioned result",
+ use:"When making the locally optimal choice at each step yields the global optimum. No need to revisit decisions. Often involves sorting first, then scanning.",
+ nouse:"When a greedy choice now can hurt you later (overlapping subproblems → use DP). When you need ALL solutions (use backtracking). When the problem has dependency ordering (use topo-sort).",
+ whyWorks:"Greedy works when the problem has the greedy-choice property: choosing the locally best option at every step still leads to a globally optimal solution. Proof is usually by exchange argument or contradiction.",
+ tc:"O(n) or O(n log n) with sorting",sc:"O(1) to O(n)",
+ tpl:`def greedy_example(items):
+    items.sort()  # often sort first
+    result = 0
+    for item in items:
+        # make locally optimal choice
+        if can_take(item):
+            result += item
+    return result`,
+ probs:[
+  {id:763,n:"Partition Labels",d:"Medium",c:["Amazon","Google","Meta"],u:"https://leetcode.com/problems/partition-labels/"},
+  {id:55,n:"Jump Game",d:"Medium",c:["Amazon","Meta","Microsoft"],u:"https://leetcode.com/problems/jump-game/"},
+  {id:134,n:"Gas Station",d:"Medium",c:["Amazon","Bloomberg","Google"],u:"https://leetcode.com/problems/gas-station/"},
+  {id:621,n:"Task Scheduler",d:"Medium",c:["Meta","Amazon","Microsoft"],u:"https://leetcode.com/problems/task-scheduler/"},
+  {id:455,n:"Assign Cookies",d:"Easy",c:["Amazon"],u:"https://leetcode.com/problems/assign-cookies/"},
+  {id:860,n:"Lemonade Change",d:"Easy",c:["Amazon","Google"],u:"https://leetcode.com/problems/lemonade-change/"},
+  {id:452,n:"Minimum Number of Arrows to Burst Balloons",d:"Medium",c:["Meta","Amazon"],u:"https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/"},
+  {id:45,n:"Jump Game II",d:"Medium",c:["Amazon","Meta","Google"],u:"https://leetcode.com/problems/jump-game-ii/"}
+]}
+];
+
+// CONSTRAINTS
+const CON=[
+{n:"n ≤ 10",cx:"O(n!) or O(2ⁿ·n)",ps:["Backtracking","Brute force"]},
+{n:"n ≤ 20",cx:"O(2ⁿ)",ps:["Subsets / Bitmask DP","Backtracking"]},
+{n:"n ≤ 100",cx:"O(n⁴)",ps:["DP","Brute force with optimization"]},
+{n:"n ≤ 500",cx:"O(n³)",ps:["Cubic DP","Floyd-Warshall"]},
+{n:"n ≤ 5,000",cx:"O(n²)",ps:["DP","Quadratic loops","Dijkstra"]},
+{n:"n ≤ 10⁵",cx:"O(n log n)",ps:["Sorting","Heap","Binary Search","Merge Intervals"]},
+{n:"n ≤ 10⁶",cx:"O(n)",ps:["Sliding Window","Two Pointers","HashMap","Prefix Sum"]},
+{n:"n ≤ 10⁸+",cx:"O(log n) or O(1)",ps:["Binary Search","Math","Bit manipulation"]}
+];
+
+// QUIZ BANK
+const QB=[
+{p:"Given an array of integers, return indices of two numbers that add up to target. Array is NOT sorted. 1 ≤ n ≤ 10⁴.",a:"hashmap"},
+{p:"Given a SORTED array, return indices of two numbers that add up to target. 1 ≤ n ≤ 3·10⁴.",a:"two-pointers"},
+{p:"Find the length of the longest substring without repeating characters. 1 ≤ n ≤ 5·10⁴.",a:"sliding-window"},
+{p:"Given a linked list, return true if it has a cycle. Use O(1) space.",a:"fast-slow"},
+{p:"Merge all overlapping intervals from a list of [start, end] pairs.",a:"merge-intervals"},
+{p:"Given n distinct numbers in range [0, n], find the missing one. O(1) extra space.",a:"cyclic-sort"},
+{p:"Reverse a linked list from position m to n in one pass with O(1) space.",a:"linked-list-reverse"},
+{p:"Return level-order traversal of a binary tree (each level as a list).",a:"tree-bfs"},
+{p:"Find the lowest common ancestor of two nodes in a binary tree.",a:"tree-dfs"},
+{p:"Count the number of islands in a 2D grid of '1' and '0'.",a:"graph-bfs-dfs"},
+{p:"Given prerequisite pairs for n courses, return a valid course ordering.",a:"topo-sort"},
+{p:"Merge accounts that share at least one email address.",a:"union-find"},
+{p:"Search for target in a rotated sorted array. Must run in O(log n).",a:"binary-search"},
+{p:"Find the k most frequent elements in an integer array.",a:"top-k"},
+{p:"Design a data structure that supports addNum and findMedian in a stream.",a:"two-heaps"},
+{p:"Return all possible subsets of an integer array (power set). No duplicates.",a:"backtracking"},
+{p:"Given coins of different denominations, return the fewest coins needed for amount.",a:"dp"},
+{p:"For each temperature, find how many days until a warmer temperature.",a:"mono-stack"},
+{p:"Return the total number of subarrays whose sum equals k.",a:"prefix-sum"},
+{p:"Implement insert, search, and startsWith for a prefix tree.",a:"trie"},
+{p:"Every element appears twice except one. Find it in O(1) space.",a:"xor"},
+{p:"Find the longest substring with at most k distinct characters.",a:"sliding-window"},
+{p:"Determine minimum number of conference rooms for given meeting intervals.",a:"merge-intervals"},
+{p:"Find the kth largest element in an unsorted array.",a:"top-k"},
+{p:"Find the smallest missing positive integer. O(n) time, O(1) space.",a:"cyclic-sort"},
+{p:"Given coins and amount, count the NUMBER OF WAYS to make change.",a:"dp"},
+{p:"Validate whether a binary tree is a valid BST.",a:"tree-dfs"},
+{p:"Group anagrams from an array of strings.",a:"hashmap"},
+{p:"Find the longest consecutive sequence in an unsorted array. O(n).",a:"hashmap"},
+{p:"Given a word and a board of characters, determine if the word exists by traversing adjacent cells.",a:"backtracking"},
+{p:"You are given a string s. Partition s such that each letter appears in at most one part. Return a list of integers representing the size of each part.",a:"greedy"},
+{p:"You are given an array of non-negative integers nums. You are initially at the first index. Each element represents your maximum jump length. Return true if you can reach the last index.",a:"greedy"},
+{p:"There are n gas stations along a circular route. You are given arrays gas and cost. Return the starting station index if you can travel the circuit, else return -1.",a:"greedy"},
+{p:"Given a char array tasks and cooldown interval n, return the least number of intervals the CPU will take to finish all tasks.",a:"greedy"}
+];
+
+// SAMPLE PROBLEMS for Detector
+const SAMPLES=[
+`Given an integer array nums and an integer k, return the length of the longest subarray that contains at most k distinct integers.
+
+Example 1:
+Input: nums = [1,2,1,2,3], k = 2
+Output: 4
+Explanation: The longest subarray with at most 2 distinct integers is [1,2,1,2].
+
+Constraints:
+- 1 <= nums.length <= 5 * 10^4
+- 1 <= nums[i] <= 10^4
+- 1 <= k <= nums.length`,
+
+`There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.
+Return the ordering of courses you should take to finish all courses. If there are many valid answers, return any of them. If it is impossible, return an empty array.
+
+Example 1:
+Input: numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]
+Output: [0,2,1,3]
+
+Constraints:
+- 1 <= numCourses <= 2000
+- 0 <= prerequisites.length <= numCourses * (numCourses - 1)`,
+
+`You are given an m x n binary grid where 1 represents land and 0 represents water. An island is a maximal group of 1s connected 4-directionally. Return the number of islands.
+
+Example 1:
+Input: grid = [
+  ["1","1","0","0","0"],
+  ["1","1","0","0","0"],
+  ["0","0","1","0","0"],
+  ["0","0","0","1","1"]
+]
+Output: 3
+
+Constraints:
+- m == grid.length
+- n == grid[i].length
+- 1 <= m, n <= 300
+- grid[i][j] is '0' or '1'`,
+
+`Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
+You may assume that each input would have exactly one solution, and you may not use the same element twice.
+
+Example 1:
+Input: nums = [2,7,11,15], target = 9
+Output: [0,1]
+
+Constraints:
+- 2 <= nums.length <= 10^4
+- -10^9 <= nums[i] <= 10^9
+- Only one valid answer exists.`,
+
+`Given n non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining.
+
+Example 1:
+Input: height = [0,1,0,2,1,0,1,3,2,1,2,1]
+Output: 6
+
+Constraints:
+- n == height.length
+- 1 <= n <= 2 * 10^4
+- 0 <= height[i] <= 10^5`,
+
+`You are given a string s. We want to partition the string into as many parts as possible so that each letter appears in at most one part.
+Note that the partition is done so that after concatenating all the parts in order, the resultant string should be s.
+Return a list of integers representing the size of these parts.
+
+Example 1:
+Input: s = "ababcbacadefegdehijhklij"
+Output: [9,7,8]
+Explanation: The partition is "ababcbaca", "defegde", "hijhklij". This is a partition so that each letter appears in at most one part. A partition like "ababcbacadefegde", "hijhklij" is incorrect, because it splits s into fewer parts.
+
+Constraints:
+- 1 <= s.length <= 500
+- s consists of lowercase English letters.`
+];
+
+// ============================================================
+// STORAGE
+// ============================================================
+const LS={g:(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},s:(k,v)=>localStorage.setItem(k,JSON.stringify(v))};
+const S={view:"home",quiz:LS.g("quiz",{c:0,t:0,s:0}),mastered:new Set(LS.g("m",[])),theme:LS.g("th","dark")};
+document.documentElement.setAttribute("data-theme",S.theme);
+$("thm").textContent=S.theme==="dark"?"☀️":"🌙";
+
+// ============================================================
+// NAV
+// ============================================================
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>sw(b.dataset.v)));
+function sw(v){document.querySelectorAll(".V").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));$("v-"+v).classList.add("active");document.querySelector(`.tab[data-v="${v}"]`).classList.add("active");S.view=v;window.scrollTo({top:0,behavior:"smooth"})}
+$("thm").onclick=()=>{S.theme=S.theme==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",S.theme);$("thm").textContent=S.theme==="dark"?"☀️":"🌙";LS.s("th",S.theme)};
+
+// ============================================================
+// HELPERS
+// ============================================================
+function esc(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function escRe(s){return s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}
+function parseN(s){s=s.replace(/\s/g,"").replace(/\^/g,"**").replace(/x/gi,"*");try{if(/^[\d.eE*+\-/()]+$/.test(s)){const v=Function('"use strict"; return ('+s+")")();if(Number.isFinite(v))return v}}catch{}return null}
+function getTier(n){if(n<=10)return CON[0];if(n<=20)return CON[1];if(n<=100)return CON[2];if(n<=500)return CON[3];if(n<=5e3)return CON[4];if(n<=1e5)return CON[5];if(n<=1e6)return CON[6];return CON[7]}
+
+// ============================================================
+// SIGNAL DETECTOR v2
+// ============================================================
+$("aBtn").onclick=analyze;
+$("cBtn").onclick=()=>{$("dIn").value="";$("dOut").innerHTML=""};
+$("sBtn").onclick=()=>{$("dIn").value=SAMPLES[Math.floor(Math.random()*SAMPLES.length)];analyze()};
+
+function analyze(){
+const raw=$("dIn").value.trim();
+if(!raw){$("dOut").innerHTML='<div class="note">Paste a problem above and click Analyze.</div>';return}
+const lo=raw.toLowerCase();
+
+// 1. Detect input structure
+const structs=[];
+if(/linked list|listnode|next pointer/i.test(raw))structs.push("Linked List");
+if(/binary tree|treenode|root.*left.*right|root of a tree/i.test(raw))structs.push("Binary Tree");
+if(/grid|matrix|m\s*x\s*n|board/i.test(raw))structs.push("Grid/Matrix");
+if(/graph|node.*neighbor|edge|adjacent|directed|undirected|prerequisite/i.test(raw))structs.push("Graph");
+if(/interval|meeting|start.*end.*pair|\[start|booking/i.test(raw))structs.push("Intervals");
+if(/string|substring|characters|word/i.test(raw))structs.push("String");
+if(/array|nums|integer array|list of int/i.test(raw))structs.push("Array");
+if(/stream|data stream|addnum/i.test(raw))structs.push("Stream");
+
+// 2. Detect output type
+const outputs=[];
+if(/return.*true|return.*false|boolean|whether|determine if|can you|is it possible/i.test(raw))outputs.push("Boolean");
+if(/return.*indices|return.*index/i.test(raw))outputs.push("Indices");
+if(/return.*all|list of all|every possible|power set/i.test(raw))outputs.push("All combinations");
+if(/number of|count|how many/i.test(raw))outputs.push("Count");
+if(/minimum|maximum|longest|shortest|fewest|largest|smallest/i.test(raw))outputs.push("Optimal value");
+if(/return.*order|ordering|sequence/i.test(raw))outputs.push("Ordering");
+
+// 3. Detect constraints
+let maxN=null,tier=null;
+const cm=raw.match(/(\d+)\s*<=?\s*(?:nums\.length|n|s\.length|grid\.length|m|numCourses|height\.length|arr\.length|words\.length|intervals\.length)[\s,]*(?:<=?\s*([\d^*.eE]+))?/gi);
+if(cm){cm.forEach(m=>{const nums=[...m.matchAll(/(\d[\d^*.eE]*)/g)].map(x=>parseN(x[1])).filter(Boolean);if(nums.length)maxN=Math.max(maxN||0,...nums)});if(maxN)tier=getTier(maxN)}
+if(!maxN){const cm2=raw.match(/(?:n|length)\s*<=?\s*([\d^*.eE]+)/i);if(cm2){maxN=parseN(cm2[1]);if(maxN)tier=getTier(maxN)}}
+
+// 4. Score patterns with multi-signal
+const scores={};const matchedKW=new Set();
+P.forEach(p=>{
+  let score=0;
+  p.kw.s.forEach(k=>{if(lo.includes(k)){score+=5;matchedKW.add(k)}});
+  p.kw.w.forEach(k=>{if(lo.includes(k)){score+=1;matchedKW.add(k)}});
+  // Structural bonus
+  if(structs.includes("Linked List")&&p.cat==="Linked List")score+=4;
+  if(structs.includes("Binary Tree")&&p.cat==="Tree")score+=4;
+  if(structs.includes("Grid/Matrix")&&(p.id==="graph-bfs-dfs"))score+=4;
+  if(structs.includes("Graph")&&(p.cat==="Graph"))score+=3;
+  if(structs.includes("Intervals")&&p.id==="merge-intervals")score+=5;
+  if(structs.includes("Stream")&&(p.id==="two-heaps"||p.id==="top-k"))score+=4;
+  // Output type bonus
+  if(outputs.includes("All combinations")&&p.id==="backtracking")score+=5;
+  if(outputs.includes("Optimal value")&&p.id==="dp")score+=2;
+  if(outputs.includes("Count")&&(p.id==="dp"||p.id==="prefix-sum"))score+=2;
+  if(outputs.includes("Ordering")&&p.id==="topo-sort")score+=4;
+  // Constraint bonus
+  if(tier){
+    const idx=CON.indexOf(tier);
+    if(idx<=1&&p.id==="backtracking")score+=3;
+    if(idx>=5&&(p.id==="sliding-window"||p.id==="two-pointers"||p.id==="hashmap"||p.id==="prefix-sum"))score+=2;
+  }
+  scores[p.id]=score;
+});
+
+// Highlight keywords
+let hl=esc(raw);
+[...matchedKW].sort((a,b)=>b.length-a.length).forEach(k=>{
+  const re=new RegExp(`(${escRe(k)})`,"gi");
+  hl=hl.replace(re,'<mark class="s">$1</mark>');
+});
+
+const ranked=Object.entries(scores).filter(([,s])=>s>0).sort((a,b)=>b[1]-a[1]).slice(0,6);
+const mx=ranked[0]?.[1]||1;
+const top=ranked[0]?P.find(x=>x.id===ranked[0][0]):null;
+const runner=ranked[1]?P.find(x=>x.id===ranked[1][0]):null;
+
+let html=`<div class="P"><h3>📝 Structural Analysis</h3>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0">
+<b style="font-size:12px;color:var(--td)">Input:</b> ${structs.length?structs.map(s=>`<span class="tag">${s}</span>`).join(""):'<span class="tag">Unknown</span>'}
+<b style="font-size:12px;color:var(--td);margin-left:12px">Output:</b> ${outputs.length?outputs.map(s=>`<span class="tag">${s}</span>`).join(""):'<span class="tag">Unknown</span>'}
+${tier?`<b style="font-size:12px;color:var(--td);margin-left:12px">Constraint:</b> <span class="tag w">${tier.n} → ${tier.cx}</span>`:``}
+</div>
+<h4>Highlighted Signals</h4>
+<div class="det-hl">${hl}</div>
+</div>`;
+
+if(ranked.length===0){
+  html+=`<div class="P"><div class="note">No strong matches. Try pasting the full problem with examples and constraints, or use the Decision Graph.</div></div>`;
+}else{
+  html+=`<div class="P"><h3>🏆 Pattern Rankings</h3><div style="margin-top:8px">`;
+  ranked.forEach(([id,sc],i)=>{
+    const p=P.find(x=>x.id===id);
+    const pct=Math.min(100,(sc/mx)*100);
+    html+=`<div class="sc-row"><div class="sc-name">${p.icon} ${p.name}</div><div class="sc-bg"><div class="sc-fill ${i===0?'top':''}" style="width:${pct}%"></div></div><div class="sc-val">${sc}pt</div></div>`;
+  });
+  html+=`</div></div>`;
+
+  // WHY analysis
+  if(top){
+    html+=`<div class="why-box"><h4>✅ Why ${top.name} works here</h4>
+    <div class="why-item"><span class="why-icon">🎯</span><div>${top.whyWorks}</div></div>
+    <div class="why-item"><span class="why-icon">📥</span><div><b>Input match:</b> ${top.input} — ${structs.length?'detected: '+structs.join(', '):'check if this fits'}</div></div>
+    <div class="why-item"><span class="why-icon">⏱</span><div><b>Complexity:</b> ${top.tc}${tier?' — fits within '+tier.cx+' constraint':''}</div></div>
+    <div class="why-item"><span class="why-icon">💡</span><div><b>When to use:</b> ${top.use}</div></div>
+    </div>`;
+
+    // WHY NOT others
+    const rejects=P.filter(p=>p.id!==top.id).slice(0,3);
+    html+=`<div class="why-box"><h4>❌ Why other patterns don't fit</h4>`;
+    if(runner&&runner.id!==top.id){
+      html+=`<div class="why-item"><span class="why-icon">⚠️</span><div><b>${runner.name}:</b> ${runner.nouse}</div></div>`;
+    }
+    // Show 2-3 popular wrong guesses
+    const common=["dp","sliding-window","two-pointers","backtracking","binary-search"].filter(x=>x!==top.id&&x!==(runner?.id));
+    common.slice(0,2).forEach(id=>{
+      const p=P.find(x=>x.id===id);
+      html+=`<div class="why-item"><span class="why-icon">✖</span><div><b>${p.name}:</b> ${p.nouse}</div></div>`;
+    });
+    html+=`</div>`;
+
+    html+=`<div class="row"><button class="btn" onclick="showDet('${top.id}');sw('lib')">Open ${top.name} in Library →</button></div>`;
+  }
+}
+$("dOut").innerHTML=html;
+}
+
+// ============================================================
+// DECISION GRAPH (SVG)
+// ============================================================
+const TREE={id:"root",q:"What does the input look like?",ch:[
+{l:"Sorted array / list",next:{q:"What are you looking for?",ch:[
+  {l:"Pair/triplet sum",r:"two-pointers"},
+  {l:"Value or boundary",r:"binary-search"},
+  {l:"Cycle or middle",r:"fast-slow"}]}},
+{l:"Contiguous subarray / substring",next:{q:"Window type?",ch:[
+  {l:"Fixed or variable size",r:"sliding-window"},
+  {l:"Max/min in rolling window",r:"mono-stack"}]}},
+{l:"Binary tree",next:{q:"Traversal type?",ch:[
+  {l:"Level by level",r:"tree-bfs"},
+  {l:"Root-to-leaf / paths / validation",r:"tree-dfs"}]}},
+{l:"Graph / grid / matrix",next:{q:"What to compute?",ch:[
+  {l:"Components / shortest path",r:"graph-bfs-dfs"},
+  {l:"Dependencies / ordering",r:"topo-sort"},
+  {l:"Dynamic connectivity",r:"union-find"}]}},
+{l:"Intervals [start, end]",r:"merge-intervals"},
+{l:"Top / least K of something",r:"top-k"},
+{l:"Running median of stream",r:"two-heaps"},
+{l:"All subsets / permutations",r:"backtracking"},
+{l:"Count ways / min-max cost / LIS",r:"dp"},
+{l:"Next greater/smaller element",r:"mono-stack"},
+{l:"Range sums / subarray sum = K",r:"prefix-sum"},
+{l:"Prefix / autocomplete search",r:"trie"},
+{l:"Array [1..n] missing/duplicate",r:"cyclic-sort"},
+{l:"One element unique, rest paired",r:"xor"},
+{l:"Unsorted, need O(1) lookup",r:"hashmap"},
+{l:"Reverse linked list",r:"linked-list-reverse"},
+{l:"Partition / schedule / maximize with local choices",r:"greedy"}
+]};
+
+let gState={node:TREE,path:[]};
+function renderGraph(){
+  const node=gState.node;
+  $("gPath").textContent=gState.path.length?gState.path.join(" → "):"Start";
+  if(node.r){
+    const p=P.find(x=>x.id===node.r);
+    $("gResult").innerHTML=`<div class="P" style="border-left:3px solid var(--ok)">
+    <h3>✅ ${p.icon} ${p.name}</h3>
+    <p style="font-size:13px;color:var(--td);margin:6px 0">${p.whyWorks}</p>
+    <div class="row"><button class="btn" onclick="showDet('${p.id}');sw('lib')">Open in Library →</button></div>
+    </div>`;
+    $("gWrap").innerHTML="";
+    return;
+  }
+  $("gResult").innerHTML="";
+  // Build SVG
+  const ch=node.ch||[];
+  const W=900,padX=20,padY=20,nodeH=36,nodeW=260,gap=8;
+  const totalH=padY*2+ch.length*(nodeH+gap)+60;
+  const qX=W/2,qY=padY+18;
+  let svg=`<svg width="${W}" height="${totalH}" xmlns="http://www.w3.org/2000/svg" style="font-family:-apple-system,sans-serif">
+  <defs><marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="var(--bs)"/></marker></defs>`;
+  // Question node
+  svg+=`<rect x="${qX-140}" y="${qY-14}" width="280" height="32" rx="8" fill="var(--a)" stroke="var(--a)"/>`;
+  svg+=`<text x="${qX}" y="${qY+4}" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">${esc(node.q)}</text>`;
+  // Children
+  const startY=qY+50;
+  const half=Math.ceil(ch.length/2);
+  ch.forEach((c,i)=>{
+    const col=i<half?0:1;
+    const row=col===0?i:i-half;
+    const cx=col===0?W/4:3*W/4;
+    const cy=startY+row*(nodeH+gap);
+    const isResult=!!c.r;
+    const cls=isResult?"g-node result":"g-node";
+    // Edge
+    svg+=`<line class="g-edge" x1="${qX}" y1="${qY+18}" x2="${cx}" y2="${cy}"/>`;
+    // Node
+    svg+=`<g class="${cls}" data-i="${i}" style="cursor:pointer">
+    <rect x="${cx-nodeW/2}" y="${cy-nodeH/2+2}" width="${nodeW}" height="${nodeH}" rx="7" fill="var(--p)" stroke="var(--b)" stroke-width="1.5"/>
+    <text x="${cx}" y="${cy+6}" text-anchor="middle" fill="var(--t)" font-size="11">${esc(c.l)}${isResult?' → '+P.find(x=>x.id===c.r).name:' →'}</text></g>`;
+  });
+  svg+=`</svg>`;
+  $("gWrap").innerHTML=svg;
+  // Click handlers
+  $("gWrap").querySelectorAll(".g-node").forEach(g=>{
+    g.addEventListener("click",()=>{
+      const i=parseInt(g.dataset.i);
+      const c=ch[i];
+      gState.path.push(c.l);
+      if(c.r)gState.node={r:c.r};
+      else if(c.next)gState.node=c.next;
+      renderGraph();
+    });
+  });
+}
+$("gReset").onclick=()=>{gState={node:TREE,path:[]};renderGraph()};
+renderGraph();
+
+// ============================================================
+// LIBRARY
+// ============================================================
+function renderGrid(f=""){
+  const lo=f.toLowerCase();
+  const fl=P.filter(p=>{if(!lo)return true;return p.name.toLowerCase().includes(lo)||p.cat.toLowerCase().includes(lo)||p.kw.s.some(k=>k.includes(lo))||p.probs.some(pr=>pr.n.toLowerCase().includes(lo))});
+  $("pGrid").innerHTML=fl.map(p=>`<div class="pc" data-id="${p.id}">${S.mastered.has(p.id)?'<div class="mb">MASTERED</div>':''}
+  <div class="pi">${p.icon}</div><div class="pn">${p.name}</div><div class="pcat">${p.cat}</div><div class="ps">${p.signals[0]}</div></div>`).join("");
+  $("pGrid").querySelectorAll(".pc").forEach(c=>c.addEventListener("click",()=>showDet(c.dataset.id)));
+}
+$("libS").addEventListener("input",e=>renderGrid(e.target.value));
+renderGrid();
+
+function showDet(id){
+  const p=P.find(x=>x.id===id);if(!p)return;
+  $("libList").style.display="none";$("libDet").style.display="block";
+  const m=S.mastered.has(id);
+  $("libDet").innerHTML=`
+  <button class="d-back" id="bk">← Back to library</button>
+  <div class="P">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <span style="font-size:28px">${p.icon}</span>
+      <div><h2 style="margin:0">${p.name}</h2>
+      <div class="row" style="margin-top:4px"><span class="tag">${p.cat}</span><span class="tag w">⏱ ${p.tc}</span><span class="tag ok">💾 ${p.sc}</span></div></div>
+      <div style="margin-left:auto"><button class="btn${m?' secondary':''}" id="mBtn">${m?'✓ Mastered':'Mark mastered'}</button></div>
+    </div>
+
+    <div style="margin-top:14px"><h4>🎓 Learn this pattern — YouTube</h4>
+    ${p.yt.map(y=>`<a href="${y.u}" target="_blank" class="yt-link">▶️ ${y.t}</a>`).join("")}
+    </div>
+
+    <div style="margin-top:14px"><h4>🎯 Trigger Signals — What to look for</h4>
+    <ul class="sig-list">${p.signals.map(s=>`<li>${s}</li>`).join("")}</ul></div>
+
+    <div style="margin-top:14px"><h4>🔑 Keywords</h4>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">
+    ${p.kw.s.map(k=>`<span class="tag" style="background:var(--hls);color:var(--bg);border:0">${k}</span>`).join("")}
+    ${p.kw.w.map(k=>`<span class="tag">${k}</span>`).join("")}
+    </div></div>
+
+    <div style="margin-top:14px"><h4>🧠 Why this pattern works</h4>
+    <p style="font-size:13px;color:var(--td)">${p.whyWorks}</p></div>
+
+    <div style="margin-top:14px"><h4>✅ When to use</h4><p style="font-size:12px;color:var(--td)">${p.use}</p>
+    <h4>❌ When NOT to use</h4><p style="font-size:12px;color:var(--td)">${p.nouse}</p></div>
+
+    <div style="margin-top:14px"><h4>💻 Code Template</h4><pre class="code">${esc(p.tpl)}</pre></div>
+
+    <div style="margin-top:14px"><h4>🏢 Real Interview Problems (company-tagged)</h4>
+    ${p.probs.map(pr=>`<div class="pr"><div class="pr-id">#${pr.id}</div><div><div class="pr-t"><a href="${pr.u}" target="_blank">${pr.n}</a></div><div class="ct">${pr.c.map(c=>`<span>${c}</span>`).join("")}</div></div><span class="diff ${pr.d.toLowerCase()}">${pr.d}</span><a href="${pr.u}" target="_blank" class="tag">Open ↗</a></div>`).join("")}
+    </div>
+  </div>`;
+  $("bk").onclick=()=>{$("libDet").style.display="none";$("libList").style.display="block";renderGrid($("libS").value)};
+  $("mBtn").onclick=()=>{if(S.mastered.has(id))S.mastered.delete(id);else S.mastered.add(id);LS.s("m",[...S.mastered]);showDet(id)};
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+window.showDet=showDet;window.sw=sw;
+
+// ============================================================
+// QUIZ
+// ============================================================
+let qCur=null,qAns=false;
+function qStats(){$("qStr").textContent=S.quiz.s;$("qCor").textContent=S.quiz.c;$("qTot").textContent=S.quiz.t;$("qRate").textContent=S.quiz.t?Math.round(S.quiz.c/S.quiz.t*100)+"%":"–"}
+function newQ(){
+  qCur=QB[Math.floor(Math.random()*QB.length)];qAns=false;
+  const dist=P.filter(p=>p.id!==qCur.a).sort(()=>Math.random()-.5).slice(0,3);
+  const opts=[...dist.map(p=>p.id),qCur.a].sort(()=>Math.random()-.5);
+  $("qBox").innerHTML=`<div class="qp">${esc(qCur.p)}</div>
+  <div class="qo">${opts.map(id=>{const p=P.find(x=>x.id===id);return`<button class="qob" data-id="${id}">${p.icon} ${p.name}</button>`}).join("")}</div>
+  <div id="qFb"></div>
+  <div style="margin-top:8px;color:var(--tf);font-size:11px">Press 1–4 to pick · Space/Enter for next</div>`;
+  $("qBox").querySelectorAll(".qob").forEach(b=>b.addEventListener("click",()=>submitQ(b.dataset.id)));
+}
+function submitQ(id){
+  if(qAns)return;qAns=true;S.quiz.t++;
+  const ok=id===qCur.a;
+  if(ok){S.quiz.c++;S.quiz.s++}else S.quiz.s=0;
+  LS.s("quiz",S.quiz);qStats();
+  const cp=P.find(x=>x.id===qCur.a);
+  $("qBox").querySelectorAll(".qob").forEach(b=>{if(b.dataset.id===qCur.a)b.classList.add("ok");else if(b.dataset.id===id)b.classList.add("no")});
+  $("qFb").innerHTML=`<div class="qfb ${ok?'ok':'no'}">${ok?'✅ <b>Correct!</b>':'❌ <b>Not quite.</b>'} The pattern is <b>${cp.icon} ${cp.name}</b>.<br>
+  <span style="color:var(--td)">${cp.whyWorks}</span>
+  <div class="row"><button class="btn" id="nxQ">Next →</button><button class="btn2" onclick="showDet('${cp.id}');sw('lib')">Learn this →</button></div></div>`;
+  $("nxQ").onclick=newQ;
+}
+document.addEventListener("keydown",e=>{if(S.view!=="quiz"||!qCur)return;if(e.key>="1"&&e.key<="4"){const bs=$("qBox").querySelectorAll(".qob");if(bs[e.key-1])bs[e.key-1].click()}else if(e.key===" "||e.key==="Enter"){if(qAns){e.preventDefault();newQ()}}});
+qStats();newQ();
+
+// ============================================================
+// INTERVIEW PLAYBOOK
+// ============================================================
+const PB=[
+{letter:"U",name:"Understand",time:"3–5 min",
+ say:["\"Let me make sure I understand the problem correctly. We're given ___ and need to return ___.\"","\"Let me walk through this example: if the input is [2,7,11,15] and target is 9, then…\"","\"What about edge cases? Can the array be empty? Can there be duplicates? Negative numbers?\"","\"Is the input sorted? Can I modify it in place?\"","\"So the constraint says n ≤ 10⁵ — that means I need O(n log n) or better.\""],
+ donot:["Don't start coding immediately — this is the #1 reason candidates fail","Don't say \"I think I know this one\" and skip to code","Don't assume constraints — always ask or read them explicitly"],
+ tip:"The interviewer is testing whether you can scope a problem before diving in. Even if you've seen the exact problem, go through this step — it shows maturity."},
+{letter:"M",name:"Match to a Pattern",time:"1–2 min",
+ say:["\"This looks like a [sliding window / two pointers / DP] problem because we need a contiguous subarray with a constraint.\"","\"The constraint is n ≤ 10⁵, so I need O(n) or O(n log n). That rules out O(n²) approaches like nested loops.\"","\"I considered [other pattern] but it doesn't work here because [reason].\""],
+ donot:["Don't name a pattern you can't justify — the interviewer will ask 'why?'","Don't skip straight to implementation without naming the approach","Don't say 'I'll just try brute force' — always name the optimized pattern too"],
+ tip:"This is your chance to show pattern recognition. Even if your first guess is wrong, the structured reasoning impresses interviewers. They can guide you if your thinking is visible."},
+{letter:"P",name:"Plan the Solution",time:"3–5 min",
+ say:["\"Here's my approach: I'll use a hashmap to store values I've seen. For each element, I'll check if its complement exists.\"","\"Let me write pseudo-code first before I implement.\"","\"The time complexity should be O(n) because we iterate once. Space is O(n) for the hashmap.\"","\"Does this approach make sense before I start coding?\""],
+ donot:["Don't start coding without stating your plan — the interviewer can't help you if they don't know your approach","Don't skip complexity analysis — interviewers expect it before you code","Don't plan silently in your head — say it out loud"],
+ tip:"Getting interviewer buy-in here saves you from coding a wrong approach for 15 minutes. A 30-second check can save the interview."},
+{letter:"I",name:"Implement",time:"10–15 min",
+ say:["\"I'm initializing the hashmap here to store {value: index}…\"","\"This while loop shrinks the window when the constraint is violated…\"","\"Let me use descriptive names — 'window_start' instead of just 'i'…\""],
+ donot:["Don't go silent for more than 30 seconds — if you're thinking, say 'Let me think about this edge case for a moment'","Don't optimize prematurely — get a working version first","Don't use single-letter variable names without explaining them"],
+ tip:"Talk every 30 seconds, but not every line. The balance: enough to show reasoning, not so much that you slow yourself down. If stuck, say 'I'm stuck on X, let me think about Y approach.'"},
+{letter:"R",name:"Review & Debug",time:"3–5 min",
+ say:["\"Let me trace through with the example: nums = [2,7,11,15], target = 9…\"","\"At index 0: seen = {2:0}. At index 1: complement = 9-7 = 2, found in seen! Return [0,1]. ✓\"","\"Let me check edge cases: empty array → returns []. Single element → no pair found.\"","\"I want to check for off-by-one: my loop goes from 0 to n-1, which is correct.\""],
+ donot:["Don't say 'I think it's correct' without tracing — always verify","Don't let the interviewer find your bug — hunt it yourself first","Don't rush this step to save time — a bug found now is better than one found later"],
+ tip:"Walk through variable state at each step, like you're running a debugger. The interviewer watches whether you can verify your own work."},
+{letter:"E",name:"Evaluate & Extend",time:"2–3 min",
+ say:["\"The final time complexity is O(n) and space is O(n) for the hashmap.\"","\"An alternative approach would be sorting + two pointers for O(n log n) time and O(1) space — but the hashmap approach is better since the input isn't sorted.\"","\"If this were a stream instead of a fixed array, we could use a different data structure like a BST.\"","\"If there could be multiple valid answers, I would modify the hashmap to store a list of indices.\""],
+ donot:["Don't just say 'it works' — always state complexity","Don't miss the chance to discuss trade-offs — this separates junior from senior","Don't leave without showing you can think beyond the exact problem"],
+ tip:"This is where you go from 'hire' to 'strong hire'. Discussing trade-offs and extensions shows depth of understanding."}
+];
+
+(function renderPlaybook(){
+  $("pbBox").innerHTML=`<div class="note" style="margin-bottom:14px">This is the <b>UMPIRE method</b> — a step-by-step script for every coding interview. Practice saying these lines out loud until they're automatic.</div>
+  ${PB.map(s=>`<div class="pb-step">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+    <span class="letter">${s.letter}</span><h3 style="margin:0">${s.name}</h3><span class="tag w">${s.time}</span>
+  </div>
+  <h4>✅ What to SAY out loud</h4>
+  ${s.say.map(x=>`<div class="pb-say">${x}</div>`).join("")}
+  <h4>❌ What NOT to do</h4>
+  ${s.donot.map(x=>`<div class="pb-donot">${x}</div>`).join("")}
+  <div class="note" style="margin-top:8px">💡 <b>Pro tip:</b> ${s.tip}</div>
+  </div>`).join("")}
+  <div class="P">
+  <h3>🎙️ Recovery Scripts — What to say when stuck</h3>
+  <div class="pb-grid">
+  <div class="pb-say">"I'm going to take a step back and think about what data structure would help here."</div>
+  <div class="pb-say">"Let me consider the brute force first — that would be O(n²). Can I do better by using [hashmap/sorting/heap]?"</div>
+  <div class="pb-say">"I notice the input is sorted, which suggests two pointers or binary search might work."</div>
+  <div class="pb-say">"I'm stuck on the optimization. Could you give me a hint about the expected time complexity?"</div>
+  <div class="pb-say">"Let me re-read the constraints. n ≤ 10⁵ means I need O(n log n) or better."</div>
+  <div class="pb-say">"I realize my approach has a bug at this edge case. Let me fix it by..."</div>
+  </div>
+  </div>`;
+})();
+
+// ============================================================
+// CONSTRAINTS CALCULATOR
+// ============================================================
+function cRun(){
+  const raw=$("cIn").value.trim();
+  if(!raw){$("cOut").innerHTML=`<div style="color:var(--td);font-size:12px">Enter a value.</div>`;return}
+  const n=parseN(raw);
+  if(!n||n<=0){$("cOut").innerHTML=`<div style="color:var(--err);font-size:12px">Couldn't parse. Try 100000 or 1e5.</div>`;return}
+  const t=getTier(n);
+  $("cOut").innerHTML=`<div style="color:var(--td);font-size:11px;margin-bottom:4px">For n ≈ ${n.toLocaleString()}</div>
+  <div class="ct2">${t.cx}</div>
+  <div style="color:var(--td);font-size:11px;margin-top:6px">Tier: <b>${t.n}</b></div>
+  <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px">${t.ps.map(p=>`<span class="tag">${p}</span>`).join("")}</div>`;
+}
+window.cRun=cRun;
+$("cIn").addEventListener("input",cRun);
+</script>
+</body>
+</html>
