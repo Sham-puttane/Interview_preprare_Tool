@@ -974,7 +974,8 @@ const structs=[];
 if(/linked list|listnode|next pointer/i.test(raw))structs.push("Linked List");
 if(/binary tree|treenode|root.*left.*right|root of a tree/i.test(raw))structs.push("Binary Tree");
 if(/grid|matrix|m\s*x\s*n|board/i.test(raw))structs.push("Grid/Matrix");
-if(/graph|node.*neighbor|edge|adjacent|directed|undirected|prerequisite/i.test(raw))structs.push("Graph");
+if(/graph|node.*neighbor|edge|adjacent|directed|undirected/i.test(raw))structs.push("Graph");
+if(/prerequisite/i.test(raw)&&/course|task|compile|build/i.test(raw))structs.push("Graph");
 if(/interval|meeting|start.*end.*pair|\[start|booking/i.test(raw))structs.push("Intervals");
 if(/string|substring|characters|word/i.test(raw))structs.push("String");
 if(/array|nums|integer array|list of int/i.test(raw))structs.push("Array");
@@ -987,7 +988,9 @@ if(/return.*indices|return.*index/i.test(raw))outputs.push("Indices");
 if(/return.*all|list of all|every possible|power set/i.test(raw))outputs.push("All combinations");
 if(/number of|count|how many/i.test(raw))outputs.push("Count");
 if(/minimum|maximum|longest|shortest|fewest|largest|smallest/i.test(raw))outputs.push("Optimal value");
-if(/return.*order|ordering|sequence/i.test(raw))outputs.push("Ordering");
+if(/prerequisite.*order|dependency.*order|topological.*order|build.*order|compilation.*order|course.*order/i.test(raw))outputs.push("Dependency ordering");
+else if(/return.*order|ordering|sequence/i.test(raw))outputs.push("Ordering");
+if(/partition|split into.*parts|divide.*into/i.test(raw))outputs.push("Partition");
 
 // 3. Detect constraints
 let maxN=null,tier=null;
@@ -995,7 +998,33 @@ const cm=raw.match(/(\d+)\s*<=?\s*(?:nums\.length|n|s\.length|grid\.length|m|num
 if(cm){cm.forEach(m=>{const nums=[...m.matchAll(/(\d[\d^*.eE]*)/g)].map(x=>parseN(x[1])).filter(Boolean);if(nums.length)maxN=Math.max(maxN||0,...nums)});if(maxN)tier=getTier(maxN)}
 if(!maxN){const cm2=raw.match(/(?:n|length)\s*<=?\s*([\d^*.eE]+)/i);if(cm2){maxN=parseN(cm2[1]);if(maxN)tier=getTier(maxN)}}
 
-// 4. Score patterns with multi-signal
+// 4. Semantic verb analysis — detect action verbs that hint at pattern
+const semantics={};
+if(/partition|split|divide|cut.*into|break.*into/i.test(raw))semantics.partition=true;
+if(/schedule|arrange|assign|distribute|allocate/i.test(raw))semantics.schedule=true;
+if(/reach|jump|can.*get to|furthest|farthest/i.test(raw))semantics.reachability=true;
+if(/prerequisite|depends on|must.*before|comes before|required before/i.test(raw))semantics.dependency=true;
+if(/each letter|each character|each element.*appears.*once|at most one/i.test(raw))semantics.uniqueAssignment=true;
+if(/maximize|minimize|optimal|best|least|fewest|most/i.test(raw))semantics.optimize=true;
+if(/all possible|every combination|generate all|list all|power set/i.test(raw))semantics.enumerate=true;
+
+// 5. Anti-keyword rules — patterns that should be PENALIZED in certain contexts
+const antiRules=[
+  // Graph patterns penalized when input is purely String with no graph structure
+  {pat:"topo-sort",cond:()=>structs.includes("String")&&!structs.includes("Graph")&&!semantics.dependency,penalty:-8},
+  {pat:"union-find",cond:()=>structs.includes("String")&&!structs.includes("Graph"),penalty:-6},
+  {pat:"graph-bfs-dfs",cond:()=>structs.includes("String")&&!structs.includes("Graph")&&!structs.includes("Grid/Matrix"),penalty:-6},
+  // Topo-sort penalized when no directed/dependency/prerequisite context
+  {pat:"topo-sort",cond:()=>!semantics.dependency&&!/directed|dag|prerequisite|indegree/i.test(raw),penalty:-6},
+  // DP penalized when greedy signals are strong and no overlapping subproblems
+  {pat:"dp",cond:()=>semantics.partition&&semantics.uniqueAssignment&&!(/overlapping|subproblem|memo|ways to|number of ways/i.test(raw)),penalty:-2},
+  // Greedy penalized when dependency ordering is the goal
+  {pat:"greedy",cond:()=>semantics.dependency,penalty:-5},
+  // Backtracking penalized for large n when not asking for all combos
+  {pat:"backtracking",cond:()=>maxN&&maxN>20&&!semantics.enumerate,penalty:-3},
+];
+
+// 6. Score patterns with multi-signal
 const scores={};const matchedKW=new Set();
 P.forEach(p=>{
   let score=0;
@@ -1008,18 +1037,28 @@ P.forEach(p=>{
   if(structs.includes("Graph")&&(p.cat==="Graph"))score+=3;
   if(structs.includes("Intervals")&&p.id==="merge-intervals")score+=5;
   if(structs.includes("Stream")&&(p.id==="two-heaps"||p.id==="top-k"))score+=4;
-  // Output type bonus
+  // Output type bonus — "Dependency ordering" only boosts topo-sort, generic "Ordering" does NOT
   if(outputs.includes("All combinations")&&p.id==="backtracking")score+=5;
-  if(outputs.includes("Optimal value")&&p.id==="dp")score+=2;
+  if(outputs.includes("Optimal value")&&(p.id==="dp"||p.id==="greedy"))score+=2;
   if(outputs.includes("Count")&&(p.id==="dp"||p.id==="prefix-sum"))score+=2;
-  if(outputs.includes("Ordering")&&p.id==="topo-sort")score+=4;
+  if(outputs.includes("Dependency ordering")&&p.id==="topo-sort")score+=5;
+  if(outputs.includes("Partition")&&p.id==="greedy")score+=4;
+  // Semantic verb bonuses
+  if(semantics.partition&&p.id==="greedy")score+=4;
+  if(semantics.schedule&&!semantics.dependency&&p.id==="greedy")score+=3;
+  if(semantics.reachability&&p.id==="greedy")score+=3;
+  if(semantics.dependency&&p.id==="topo-sort")score+=4;
+  if(semantics.uniqueAssignment&&p.id==="greedy")score+=3;
+  if(semantics.enumerate&&p.id==="backtracking")score+=3;
   // Constraint bonus
   if(tier){
     const idx=CON.indexOf(tier);
     if(idx<=1&&p.id==="backtracking")score+=3;
     if(idx>=5&&(p.id==="sliding-window"||p.id==="two-pointers"||p.id==="hashmap"||p.id==="prefix-sum"))score+=2;
   }
-  scores[p.id]=score;
+  // Apply anti-keyword penalties
+  antiRules.forEach(r=>{if(r.pat===p.id&&r.cond())score+=r.penalty});
+  scores[p.id]=Math.max(0,score);
 });
 
 // Highlight keywords
